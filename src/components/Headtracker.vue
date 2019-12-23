@@ -60,7 +60,11 @@ export default {
   },
   methods: {
     streamChanged() {
-      this._io.emit("htrk.stream.changed", this.tracker_data.id, this.tracker_data.stream_on);
+      this._io.emit(
+        "htrk.stream.changed",
+        this.tracker_data.id,
+        this.tracker_data.stream_on
+      );
     },
     srChanged() {
       this._io.emit(
