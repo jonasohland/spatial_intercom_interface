@@ -3,7 +3,7 @@
         <v-list v-if="dataReady">
             <v-list-group
                 v-for="item in items"
-                :key="item.title"
+                :key="item.id"
                 v-model="item.active"
                 :prepend-icon="nodeIcon"
                 multiple="true"
@@ -11,23 +11,27 @@
             >
                 <template v-slot:activator>
                     <v-list-item-content>
-                        <v-list-item-title
-                            v-text="item.nodename"
-                        ></v-list-item-title>
+                        <v-list-item-title v-text="item.nodename" />
+                        <v-list-item-subtitle v-text="item.id" />
                     </v-list-item-content>
                 </template>
 
                 <v-list-item-content>
                     <v-container fluid style="padding: 30px">
                         <v-row align="center">
-                            <span class="headline" style="padding-left: 14px; padding-bottom: 30px">
+                            <span
+                                class="headline"
+                                style="padding-left: 14px; padding-bottom: 30px"
+                            >
                                 Audio Settings
                             </span>
-                            <v-spacer/>
+                            <v-spacer />
                             <span style="padding-bottom: 30px">
                                 DSP usage: {{ item.dspUse }}%
                             </span>
-                            <span style="padding-bottom: 30px; padding-left: 20px">
+                            <span
+                                style="padding-bottom: 30px; padding-left: 20px"
+                            >
                                 IO Latency: {{ item.latency }} ms
                             </span>
                         </v-row>
@@ -70,7 +74,15 @@
                             </v-col>
                             <v-col class="d-flex" cols="20" sm="6">
                                 <v-switch
+                                    label="Open Device"
+                                    v-model="item.device_open"
+                                    @change="setDeviceOpen(item.nodename)"
+                                ></v-switch>
+                                <v-switch
+                                    style="padding-left: 10px"
                                     label="Enable Audio Processing"
+                                    v-model="item.dsp_on"
+                                    @change="setDSPEnabled(item.nodename)"
                                 ></v-switch>
                             </v-col>
                         </v-row>
@@ -78,16 +90,12 @@
                 </v-list-item-content>
             </v-list-group>
         </v-list>
-        <v-overlay
-          :absolute="true"
-          :opacity="0.5"
-          :value="operationOngoing"
-        >
-        <v-progress-circular
-        indeterminate
-        color="white"
-        size="100"
-        ></v-progress-circular>
+        <v-overlay :absolute="true" :opacity="0.5" :value="operationOngoing">
+            <v-progress-circular
+                indeterminate
+                color="white"
+                size="100"
+            ></v-progress-circular>
         </v-overlay>
     </div>
 </template>
@@ -103,17 +111,15 @@ export default {
             nodeIcon: mdiCpu64Bit,
             dataReady: false,
             operationOngoing: true,
-            items: []
+            items: [],
         };
     },
     mounted() {
-
         let self = this;
 
         this._io.emit('audiosettings.update');
 
         this._io.on('audiosettings.update.done', data => {
-
             this.items = data;
 
             self.dataReady = true;
@@ -125,22 +131,56 @@ export default {
         });
     },
     methods: {
-        setInputDevice(node){
-            this._io.emit('audiosettings.inputdevice.set', node, this.items.find(inode => inode.nodename == node).audioInputDevice);
+        setInputDevice(node) {
+            this._io.emit(
+                'audiosettings.inputdevice.set',
+                node,
+                this.items.find(inode => inode.nodename == node)
+                    .audioInputDevice
+            );
             this.operationOngoing = true;
         },
-        setOutputDevice(node){
-            this._io.emit('audiosettings.outputdevice.set', node, this.items.find(inode => inode.nodename == node).audioOutputDevice);
+        setOutputDevice(node) {
+            this._io.emit(
+                'audiosettings.outputdevice.set',
+                node,
+                this.items.find(inode => inode.nodename == node)
+                    .audioOutputDevice
+            );
             this.operationOngoing = true;
         },
-        setBuffersize(node){
-            this._io.emit('audiosettings.buffersize.set', node, this.items.find(inode => inode.nodename == node).buffersize);
+        setBuffersize(node) {
+            this._io.emit(
+                'audiosettings.buffersize.set',
+                node,
+                this.items.find(inode => inode.nodename == node).buffersize
+            );
             this.operationOngoing = true;
         },
-        setSamplerate(node){
-            this._io.emit('audiosettings.samplerate.set', node, this.items.find(inode => inode.nodename == node).samplerate);
+        setSamplerate(node) {
+            this._io.emit(
+                'audiosettings.samplerate.set',
+                node,
+                this.items.find(inode => inode.nodename == node).samplerate
+            );
             this.operationOngoing = true;
-        }
-    }
+        },
+        setDSPEnabled(node) {
+            this._io.emit(
+                'audiosettings.dsp.enabled',
+                node,
+                this.items.find(inode => inode.nodename == node).dsp_on
+            );
+            this.operationOngoing = true;
+        },
+        setDeviceOpen(node) {
+            this._io.emit(
+                'audiosettings.device.open',
+                node,
+                this.items.find(inode => inode.nodename == node).device_open
+            );
+            this.operationOngoing = true;
+        },
+    },
 };
 </script>

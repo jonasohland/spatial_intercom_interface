@@ -4,6 +4,30 @@
     <v-app id="inspire">
         <v-navigation-drawer v-model="drawer" app clipped>
             <v-list dense>
+                <v-list-item link v-on:click="nav('/users')">
+                    <v-list-item-action>
+                        <v-icon>dashboard</v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>Dashboard</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item link v-on:click="nav('/users')">
+                    <v-list-item-action>
+                        <v-icon>perm_identity</v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>Users</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                    <v-list-item link v-on:click="nav('/inputs')">
+                    <v-list-item-action>
+                        <v-icon>input</v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>Inputs</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
                 <v-list-item link v-on:click="nav('/headtracking')">
                     <v-list-item-action>
                         <v-icon>3d_rotation</v-icon>
@@ -83,12 +107,12 @@ const MSGTypes = Object.freeze({ INFO: 1, WARN: 2, ERROR: 3 });
 
 function msgTypeString(ty) {
     switch (ty) {
-        case MSGTypes.INFO:
-            return 'success';
-        case MSGTypes.WARN:
-            return 'warning';
-        case MSGTypes.ERROR:
-            return 'error';
+    case MSGTypes.INFO:
+        return 'success';
+    case MSGTypes.WARN:
+        return 'warning';
+    case MSGTypes.ERROR:
+        return 'error';
     }
 }
 

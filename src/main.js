@@ -10,6 +10,8 @@ import vuetify from './plugins/vuetify';
 
 import Headtracking from './components/Headtracking';
 import Settings from './components/Settings';
+import Users from './components/Users';
+import Inputs from './components/Inputs';
 
 Vue.config.productionTip = false;
 
@@ -31,6 +33,8 @@ const router = new VueRouter({
     routes: [
         { path: '/headtracking', component: Headtracking },
         { path: '/settings', component: Settings },
+        { path: '/users', component: Users },
+        { path: '/inputs', component: Inputs }
     ],
 });
 
