@@ -1,61 +1,75 @@
 <template>
     <div id="users_page">
-        <v-row align="stretch" justify="space-around">
-            <v-col class="flex-grow-1" cols="20">
-                <UserSettings
-                    v-model="nodes[nselected_node].users[selected_user]"
-                    :aux="aux"
-                />
-            </v-col>
-            <v-col class="flex-shrink-1" cols="3">
-                <v-card>
-                    <v-toolbar color="indigo" dark>
-                        Users <v-spacer />
-                        <v-btn icon @click="showAddUserDialog()">
-                            <v-icon>mdi-plus</v-icon>
-                        </v-btn>
-                        <AddUserDialog v-model="add_user_dialog" :nodes="aux.nodes"/>
-                    </v-toolbar>
-                    <v-list nav>
-                        <v-list-group
-                            v-for="(node, node_idx) in nodes"
-                            :key="node.id"
-                            @change="deselectUser()"
-                        >
-                            <template v-slot:activator>
-                                <v-list-item-content>
-                                    <v-list-item-title
-                                        v-text="node.nodename"
-                                    ></v-list-item-title>
-                                </v-list-item-content>
-                            </template>
+        <UserSettings
+            v-model="selUser"
+            :aux="aux"
+        />
+        <v-btn
+            color="red"
+            fab
+            dark
+            top
+            right
+            class="v-btn--open-inputs"
+            @click="drawer = true"
+        >
+            <v-icon>mdi-chevron-left</v-icon>
+        </v-btn>
+        <v-navigation-drawer v-model="drawer" absolute right clipped temporary>
+            <v-list dense nav>
+                <v-list-item>
+                    <v-btn icon @click.stop="drawer = !drawer">
+                        <v-icon>mdi-chevron-right</v-icon>
+                    </v-btn>
+                    Inputs
+                    <v-spacer />
+                    <AddUserDialog
+                        v-model="add_user_dialog"
+                        :nodes="aux.nodes"
+                    />
+                    <v-btn icon @click.stop="add_user_dialog.show = true">
+                        <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                </v-list-item>
 
-                            <v-list-item-group
-                                v-model="selected_user"
-                                active-class="pink--text"
-                                @change="selectUser(node_idx)"
-                            >
-                                <template
-                                    v-for="(user, user_idx) in node.users"
-                                >
-                                    <v-list-item :key="user_idx">
-                                        <template
-                                            v-slot:default="{ active, toggle }"
-                                        >
-                                            <v-list-item-content>
-                                                <v-list-item-title
-                                                    v-text="user.name"
-                                                ></v-list-item-title>
-                                            </v-list-item-content>
-                                        </template>
-                                    </v-list-item>
-                                </template>
-                            </v-list-item-group>
-                        </v-list-group>
-                    </v-list>
-                </v-card>
-            </v-col>
-        </v-row>
+                <v-divider></v-divider>
+                <v-list nav>
+                    <v-list-group
+                        v-for="(node, node_idx) in nodes"
+                        :key="node.id"
+                        @change="deselectUser()"
+                    >
+                        <template v-slot:activator>
+                            <v-list-item-content>
+                                <v-list-item-title
+                                    v-text="node.nodename"
+                                ></v-list-item-title>
+                            </v-list-item-content>
+                        </template>
+
+                        <v-list-item-group
+                            v-model="selected_user"
+                            active-class="pink--text"
+                            @change="selectUser(node_idx)"
+                        >
+                            <template v-for="(user, user_idx) in node.users">
+                                <v-list-item :key="user_idx">
+                                    <template
+                                        v-slot:default="{ active, toggle }"
+                                    >
+                                        <v-list-item-content>
+                                            <v-list-item-title
+                                                v-text="user.name"
+                                            ></v-list-item-title>
+                                        </v-list-item-content>
+                                    </template>
+                                </v-list-item>
+                            </template>
+                        </v-list-item-group>
+                    </v-list-group>
+                </v-list>
+            </v-list>
+        </v-navigation-drawer>
     </div>
 </template>
 
@@ -67,124 +81,22 @@ import { mdiCpu64Bit } from '@mdi/js';
 export default {
     data() {
         return {
+            drawer: false,
+            selUser: null,
             add_user_dialog: {
                 show: false,
-                available_channels : [
-                    {
-                        i: 0,
-                        name: "Input 1",
-                    },
-                    {
-                        i: 1,
-                        name: "Input 2",
-                    }
-                    ,{
-                        i: 2,
-                        name: "Input 3",
-                    }
-                    ,{
-                        i: 3,
-                        name: "Input 4",
-                    }
-                ]
+                available_channels: [
+                ],
             },
             aux: {
-                htrks: [3, 5, 9],
-                nodes: [
-                    {
-                        nodename: 'jonasohland-mbp-2',
-                        id: 'bla',
-                        inputs: [
-                            {
-                                id: 0,
-                                name: "Program",
-                                format: "5.1"
-                            },
-                            {
-                                id: 1,
-                                name: "Program",
-                                format: "stereo"
-                            },
-                            {
-                                id: 2,
-                                name: "Regie",
-                                format: "mono"
-                            }
-                        ]
-                    },
-                    {
-                        nodename: 'jonasohland-mbp-3',
-                        id: 'blub',
-                        inputs: [
-                            {
-                                id: 0,
-                                name: "Program 2",
-                                format: "5.1"
-                            },
-                            {
-                                id: 1,
-                                name: "Program 2",
-                                format: "5.1"
-                            }
-                        ]
-                    }
-                ]
+                htrks: [],
+                nodes: []
             },
             nodeIcon: mdiCpu64Bit,
             selected_node: 0,
             selected_user: undefined,
             nselected_node: 0,
-            nodes: [
-                {
-                    nodename: 'Test Node',
-                    id: "bla",
-                    active: false,
-                    users: [
-                        {
-                            id: 0,
-                            name: 'Horst',
-                            nodename: 'jonasohland-mbp-2',
-                            nid: 'bla',
-                            advanced: true,
-                            selected_inputs: [],
-                            inputs: [
-                                {
-                                    id: 1,
-                                    name: "Test",
-                                    azm: 0,
-                                    elv: 0,
-                                    mute: true
-                                }
-                            ],
-                        },
-                        {
-                            id: 1,
-                            nid: 'bla',
-                            name: 'Udo',
-                            nodename: 'jonasohland-mbp-2',
-                            advanced: false,
-                            selected_inputs: [],
-                            inputs: [],
-                        },
-                    ],
-                },
-                {
-                    nodename: 'Test Node 2',
-                    id: 'blub',
-                    active: false,
-                    users: [
-                        {
-                            id: 0,
-                            nid: 'bla',
-                            name: 'Günther',
-                            nodename: 'jonasohland-mbp-2',
-                            advanced: true,
-                            inputs: [],
-                            selected_inputs: [],
-                        },
-                    ],
-                },
-            ],
+            nodes: [],
         };
     },
     methods: {
@@ -192,12 +104,38 @@ export default {
             this.selected_user = undefined;
         },
         selectUser(node) {
-            this.nselected_node = node;
+            this.selUser = this.nodes[node].users[this.selected_user];
         },
-        showAddUserDialog(){
+        showAddUserDialog() {
             this.add_user_dialog.show = true;
-        }
+        },
+    },
+    mounted() {
+
+        let self = this;
+
+        this._io.on('users.update', data => {
+            self.nodes = data.nodes;
+            self.aux.nodes = data.inputs;
+            self.add_user_dialog.channels = data.channels;
+            console.log(data);
+        });
+
+        this._io.on('users.headtrackers.update', data => {
+            self.aux.htrks = data;
+        });
+
+        this._io.emit('users.update');
     },
     components: { UserSettings, AddUserDialog },
 };
 </script>
+
+<style lang="css" scoped>
+.v-btn--open-inputs {
+    top: 10;
+    right: 20;
+    position: absolute;
+    margin: 0 0 16px 16px;
+}
+</style>

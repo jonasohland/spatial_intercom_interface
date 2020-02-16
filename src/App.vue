@@ -2,8 +2,8 @@
 
 <template>
     <v-app id="inspire">
-        <v-navigation-drawer v-model="drawer" app clipped>
-            <v-list dense>
+        <v-navigation-drawer v-model="drawer" app expand-on-hover>
+            <v-list dense nav>
                 <v-list-item link v-on:click="nav('/users')">
                     <v-list-item-action>
                         <v-icon>dashboard</v-icon>
@@ -47,7 +47,7 @@
             </v-list>
         </v-navigation-drawer>
 
-        <v-app-bar app clipped-left>
+        <v-app-bar app>
             <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
             <v-toolbar-title>Spatial Intercom Manager</v-toolbar-title>
             <v-spacer />

@@ -2,7 +2,7 @@
     <div>
         <v-dialog v-model="dialog" max-width="700" @click:outside="rebuildInputs()">
             <template v-slot:activator="{ on }">
-                <v-btn absolute dark fab bottom right color="pink" v-on="on" @click="dialogShow()">
+                <v-btn absolute dark fab bottom left color="pink" v-on="on" @click="dialogShow()">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
             </template>
@@ -90,15 +90,19 @@ export default {
                             format: ai.format,
                             mute: false,
                             azm: 0,
-                            elv: 0
+                            elv: 0,
+                            stwidth: 90,
                         });
                     }
                 } else {
                     if(self.value.inputs.find(inp => inp.id == ai.id))
                         self.value.inputs.splice(self.value.inputs.findIndex(inp => inp.id == ai.id), 1);
                 }
-
             });
+
+            console.log(this.value.inputs);
+
+            this._io.emit('users.inputs.changed', { id: this.value.id, nid: this.value.nid, inputs: this.value.inputs })
         },
         update(){
             this.$emit('input', this.value);

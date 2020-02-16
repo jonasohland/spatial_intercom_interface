@@ -1,14 +1,5 @@
 <template>
     <div id="headtracking">
-        <div id="options">
-            <v-card class="mx-auto" outlined>
-                <v-list-item three-line>
-                    <v-list-item-content>
-                        <div class="overline mb-4">OPTIONS</div>
-                    </v-list-item-content>
-                </v-list-item>
-            </v-card>
-        </div>
         <div id="dev_list">
             <v-card class="mx-auto" outlined>
                 <v-list-item three-line>

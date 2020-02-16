@@ -27,12 +27,12 @@
                             </span>
                             <v-spacer />
                             <span style="padding-bottom: 30px">
-                                DSP usage: {{ item.dspUse }}%
+                                DSP usage: {{ (item.dspUse * 100).toFixed(0) }}%
                             </span>
                             <span
                                 style="padding-bottom: 30px; padding-left: 20px"
                             >
-                                IO Latency: {{ item.latency }} ms
+                                IO Latency: {{ getIoLatency(item.buffersize, item.samplerate).toFixed(2) }} ms
                             </span>
                         </v-row>
                         <v-row align="center">
@@ -108,10 +108,12 @@ import { mdiCpu64Bit } from '@mdi/js';
 export default {
     data() {
         return {
+            updateDspUseInterval: null,
             nodeIcon: mdiCpu64Bit,
             dataReady: false,
             operationOngoing: true,
             items: [],
+            dspuse: []
         };
     },
     mounted() {
@@ -129,6 +131,21 @@ export default {
         this._io.on('audiosettings.operation.done', () => {
             self.operationOngoing = false;
         });
+
+        this._io.on('audiosettings.dspuse', node => {
+            
+            let it = this.items.find(item => item.id == node.id);
+
+            if(it)
+                it.dspUse = node.value;
+        })
+
+        this.updateDspUseInterval = setInterval(() => {
+            self._io.emit('audiosettings.dspuse');
+        }, 500);
+    },
+    beforeDestroy() {
+        clearInterval(this.updateDspUseInterval);
     },
     methods: {
         setInputDevice(node) {
@@ -181,6 +198,9 @@ export default {
             );
             this.operationOngoing = true;
         },
+        getIoLatency(buf, sr) {
+            return buf / sr * 1000;
+        }
     },
 };
 </script>
