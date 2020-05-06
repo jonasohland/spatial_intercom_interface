@@ -5,11 +5,13 @@
                 v-for="item in items"
                 :key="item.id"
                 v-model="item.active"
-                :prepend-icon="nodeIcon"
                 multiple="true"
                 no-action
             >
                 <template v-slot:activator>
+                    <v-list-item-icon>
+                        <v-icon>memory</v-icon>
+                    </v-list-item-icon>
                     <v-list-item-content>
                         <v-list-item-title v-text="item.nodename" />
                         <v-list-item-subtitle v-text="item.id" />
@@ -101,15 +103,11 @@
 </template>
 
 <script>
-import 'xterm/css/xterm.css';
-
-import { mdiCpu64Bit } from '@mdi/js';
 
 export default {
     data() {
         return {
             updateDspUseInterval: null,
-            nodeIcon: mdiCpu64Bit,
             dataReady: false,
             operationOngoing: true,
             items: [],

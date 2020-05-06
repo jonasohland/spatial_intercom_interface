@@ -76,7 +76,6 @@
 <script>
 import UserSettings from './UserSettings';
 import AddUserDialog from './AddUserDialog';
-import { mdiCpu64Bit } from '@mdi/js';
 
 export default {
     data() {
@@ -92,7 +91,6 @@ export default {
                 htrks: [],
                 nodes: []
             },
-            nodeIcon: mdiCpu64Bit,
             selected_node: 0,
             selected_user: undefined,
             nselected_node: 0,

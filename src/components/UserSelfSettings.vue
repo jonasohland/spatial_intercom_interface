@@ -1,6 +1,6 @@
 <template>
-    <div id="main-container">
-        <router-view/>
+    <div id="user-self-settings">
+        Settings
     </div>
 </template>
 
