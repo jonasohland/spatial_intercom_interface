@@ -1,8 +1,7 @@
 <template>
-    <div id="user-pan">
-        <canvas id="pan-canvas">
-        </canvas>
-    </div>    
+    <v-container id="user-pan" v-resize="onResize" style="width: 100%; height: 100%">
+        <canvas id="pan-canvas" style="width: 100%; height: 100%"/>
+    </v-container>    
 </template>
 
 <script>
@@ -16,7 +15,13 @@ export default {
         }
     },
     mounted() {
-        this.panner.attach("pan-canvas");
+        this.panner.attach("pan-canvas", "user-pan");
+    },
+    methods: {
+        onResize() {
+            if(this.panner.ready)
+                this.panner.resize();
+        }
     }
 }
 </script>

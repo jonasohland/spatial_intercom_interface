@@ -22,13 +22,12 @@ import UserSelfSettings from './components/UserSelfSettings';
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 Vue.config.productionTip = false;
-
-location.host.split(':')[0];
+Vue.config.strict = false;
 
 Vue.prototype._io = io(`ws://${location.host.split(':')[0]}:45040`, {
     maxReconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
-    reconnectionDelayMax: 1000,
+    reconnectionDelayMax: 5000,
 });
 
 Vue.use(VueRouter);
@@ -69,5 +68,5 @@ App.$_router = router;
 new Vue({
     router,
     vuetify,
-    render: h => h(App),
+    render: h => h(App)
 }).$mount('#app');

@@ -2,26 +2,57 @@
 
 import paper from 'paper';
 
+const p = paper;
+
 export default class PanCanvas {
+
     constructor() {}
 
-    attach(id) {
+    attach(id, container_id) {
 
-        paper.install(window);
-        paper.setup(document.getElementById(id));
+        this.scope = new p.PaperScope();
 
-        var path = new paper.Path();
-        // Give the stroke a color
-        path.strokeColor = 'black';
-        var start = new paper.Point(100, 100);
-        // Move to start and draw a line from there
-        path.moveTo(start);
-        // Note that the plus operator on Point objects does not work
-        // in JavaScript. Instead, we need to call the add() function:
-        path.lineTo(start.add([200, -50]));
-        // Draw the view now:
-        paper.view.draw();
+        this.canvas = document.getElementById(id);
+        this.ctx = this.canvas.getContext('2d');
+        this.container = document.getElementById(container_id);
+
+        this.scope.install(this.canvas);
+        this.scope.setup(this.canvas);
+
+
+        this.test = new p.Path.Rectangle(new p.Rectangle(0,0,100,100), 0);
+        this.test.fillColor = 'AAAAAA'
+
+        this.resize();
+
+        // this.resize();
+
+
+        this.ready = true;
     }
 
-    resize(h, w) {}
+    positionSelf() {
+        // ...then set the internal size to match
+        this.canvas.width  = this.canvas.offsetWidth;
+        this.canvas.height = this.canvas.offsetHeight;
+
+        this.canvas.style.width = "100%";
+        this.canvas.style.height = "100%";
+
+        this.h = this.canvas.height;
+        this.w = this.canvas.width;
+    }
+
+    resize() {
+
+        this.positionSelf();
+
+        this.test.position = new p.Point(this.w / 2, this.h / 2);
+        this.test.fitBounds(new p.Rectangle(this.w / 4, this.h / 4, this.w / 2, this.h / 2));
+        this.test.fillColor = '#aaaaaa'
+
+        console.log("Resized!" + this.h);
+        this.scope.view.requestUpdate();
+    }
+
 }
