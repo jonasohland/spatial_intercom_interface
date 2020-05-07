@@ -1,7 +1,7 @@
 <template>
-    <v-container id="user-pan" v-resize="onResize" style="width: 100%; height: 100%">
-        <canvas id="pan-canvas" style="width: 100%; height: 100%"/>
-    </v-container>    
+    <v-content v-resize="onResize">
+        <canvas id="pan-canvas" style="width:100%;height=100%"/>
+    </v-content>
 </template>
 
 <script>

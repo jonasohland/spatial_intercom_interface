@@ -1,9 +1,7 @@
 <template>
     <v-app id="user-container">
-        <v-content>
-            <router-view name="user" />
-        </v-content>
-        <v-bottom-navigation :value="active_tab" app grow>
+        <router-view name="user" />
+        <v-bottom-navigation :value="active_tab" app fixed>
             <v-btn value="panning" @click="nav(`panning`)">
                 <span>Panning</span>
                 <v-icon>looks</v-icon>
