@@ -1,6 +1,6 @@
 <template>
     <v-content v-resize="onResize">
-        <canvas id="pan-canvas" style="width:100%;height=100%"/>
+        <canvas id="pan-canvas" style="width: 100%; height: 100%"/>
     </v-content>
 </template>
 
@@ -15,7 +15,10 @@ export default {
         }
     },
     mounted() {
-        this.panner.attach("pan-canvas", "user-pan");
+        // this until the whole site has been rendered, so we can get the correct canvas size
+        setTimeout(() => {
+            this.panner.attach("pan-canvas", "user-pan");
+        }, 0);
     },
     methods: {
         onResize() {
