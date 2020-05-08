@@ -1,7 +1,7 @@
 <template>
     <v-app id="user-container">
         <router-view name="user" />
-        <v-bottom-navigation :value="active_tab" app fixed>
+        <v-bottom-navigation app :value="active_tab">
             <v-btn value="panning" @click="nav(`panning`)">
                 <span>Panning</span>
                 <v-icon>looks</v-icon>
@@ -32,3 +32,4 @@ export default {
     },
 };
 </script>
+

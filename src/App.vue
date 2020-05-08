@@ -1,7 +1,5 @@
 <template>
-    <div id="main-container">
-        <router-view/>
-    </div>
+    <router-view/>
 </template>
 
 <script>
