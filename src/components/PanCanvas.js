@@ -13,8 +13,7 @@ function wrap(x, min, max) {
 }
 
 class PannedSource {
-    /**
-     *
+    /** 
      * @param {number} a
      * @param {number} e
      * @param {number} id

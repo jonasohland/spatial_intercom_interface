@@ -64,9 +64,23 @@ export default {
             sources: [
                 {
                     id: 0,
-                    name: 'Test Source',
-                    short: 'TS',
+                    name: 'Kamera 1',
+                    short: 'K1',
                     a: Math.PI / 4,
+                    e: Math.PI / 5,
+                },
+                {
+                    id: 1,
+                    name: 'Kamera 2',
+                    short: 'K1',
+                    a: Math.PI / 7,
+                    e: Math.PI / 5,
+                },
+                {
+                    id: 2,
+                    name: 'Kamera 3',
+                    short: 'K1',
+                    a: Math.PI / 10,
                     e: Math.PI / 5,
                 },
             ],
