@@ -1,37 +1,24 @@
 <template>
     <div id="InputsPage">
         <AddInputDialog v-model="add_input_dialog" :nodes="nodes"/>
-        <v-btn
-            color="red"
-            fab
-            dark
-            top
-            right
-            class="v-btn--open-inputs"
-            @click="drawer = true"
-        >
-            <v-icon>mdi-chevron-left</v-icon>
-        </v-btn>
-        <v-navigation-drawer v-model="drawer" absolute right>
+        <div style="margin-right: 256px">
+        <InputEditor :value="selectedInput"/>
+        </div>
+        <v-navigation-drawer v-model="drawer" absolute right stateless>
             <v-list dense nav>
                 <v-list-item>
-                    <v-btn icon @click.stop="drawer = !drawer">
-                        <v-icon>mdi-chevron-right</v-icon>
-                    </v-btn>
                     Inputs
-                    <v-spacer />
+                    <v-spacer/>
                     <v-btn icon @click.stop="add_input_dialog.show = true">
                         <v-icon>mdi-plus</v-icon>
                     </v-btn>
                 </v-list-item>
-
-                <v-divider></v-divider>
-
+                <v-divider/>
                 <v-list nav>
                         <v-list-group
-                            v-for="(node, node_idx) in node_inputs"
+                            v-for="(node, node_idx) in nodes"
                             :key="node.id"
-                            @change="deselectInput()"
+                            @change="deselectInput(node_idx)"
                         >
                             <template v-slot:activator>
                                 <v-list-item-content>
@@ -42,7 +29,7 @@
                             </template>
 
                             <v-list-item-group
-                                v-model="selected_input"
+                                v-model="selected_input_index"
                                 active-class="pink--text"
                                 @change="selectInput(node_idx)"
                             >
@@ -51,14 +38,14 @@
                                 >
                                     <v-list-item :key="input_idx">
                                         <template
-                                            v-slot:default="{ active, toggle }"
+                                            v-slot:default="{}"
                                         >
                                             <v-list-item-content>
                                                 <v-list-item-title
                                                     v-text="input.name"
                                                 ></v-list-item-title>
                                                 <v-list-item-subtitle>
-                                                    {{ input.format }}
+                                                    {{ inputTypeName(input.type) }}
                                                 </v-list-item-subtitle>
                                             </v-list-item-content>
                                         </template>
@@ -74,18 +61,21 @@
 
 <script>
 import AddInputDialog from './AddInputDialog';
+import InputEditor from './InputEditor';
+import * as SI from 'spatial_intercom_server'
 
 export default {
     data() {
         return {
             drawer: true,
 
-            selected_input: 0,
+            selected_input_index: 0,
+            selected_node_index: null,
 
             nodes: [],
-            node_inputs: [],
 
             add_input_dialog: {
+                node: '',
                 formats: ['mono', 'stereo', '5.1'],
                 show: false
             },
@@ -93,32 +83,60 @@ export default {
     },
 
     methods : {
-        deselectInput() {
-
+        deselectInput(node) {
+            this.selected_node_index = node;
         },
-        selectInput() {
-
+        selectInput(node) {
+            this.selected_node_index = node;
+        },
+        inputTypeName(type) {
+            return type;
+        },
+        inputTypeChannelCount(type) {
+            return SI.PortTypeChannelCount[SI.PortTypes[type]];
         }
     },
-    
+    computed: {
+        selectedInput() {
+            if(this.selected_node_index != undefined) {
+                return  {
+                    node: this.nodes[this.selected_node_index],
+                    input: this.nodes[this.selected_node_index].inputs[this.selected_input_index]
+                }
+            }
+            return null;
+        }
+    },
     mounted() {
-
         let self = this;
+        this._join_server_room('server', 'nodes');
+        this._emit_to_server('nodes');
 
-        this._io.on('inputs.update', data => {
-            self.nodes = data.nodes;
-            self.node_inputs = data.inputs;
+        this._io.on('server.nodes', nodes => {
 
-            console.log(self.node_inputs);
-            console.log(self.nodes);
+            this.nodes = nodes.map(node => {
+                node.inputs = [];
+                return node;
+            });
+
+            nodes.forEach(node => {
+                self._emit_to_node(node.id, 'inputs', 'update');
+            });
         });
 
-        this._io.emit('inputs.update');
-
+        this._io.on('inputs.update', (nodeid, inputs) => {
+            let n = this.nodes.find(node => node.id == nodeid);
+            n.inputs = inputs;
+        });
     },
-
+    beforeDestroy() {
+        this._leave_server_room('server', 'nodes');
+        this._io.removeAllListeners('server.nodes');
+        this._io.removeAllListeners('inputs.update');
+    },
     components: {
         AddInputDialog,
+        InputEditor
     },
 };
 </script>

@@ -10,15 +10,17 @@
     "dependencies": {
         "core-js": "^3.6.5",
         "material-design-icons-iconfont": "^5.0.1",
+        "p-event": "^4.2.0",
         "paper": "^0.12.4",
         "socket.io-client": "^2.3.0",
-        "spatial_intercom_server": "file:../server",
+        "spatial_intercom_server": "github:jonasohland/si_deploy",
         "typeface-nanum-gothic-coding": "0.0.63",
         "vue": "^2.6.11",
+        "vue-async-computed": "^3.8.2",
         "vue-notification": "^1.3.20",
         "vue-router": "^3.1.6",
         "vue-socket.io": "^3.0.8",
-        "vuetify": "^2.2.27"
+        "vuetify": "^2.3.4"
     },
     "devDependencies": {
         "@vue/cli-plugin-babel": "^4.3.1",
@@ -40,26 +42,6 @@
         "semi": true,
         "singleQuote": true,
         "arrowParens": "avoid"
-    },
-    "eslintConfig": {
-        "root": true,
-        "env": {
-            "node": true
-        },
-        "extends": [
-            "plugin:vue/essential",
-            "eslint:recommended"
-        ],
-        "rules": {
-            "no-console": "off",
-            "indent": [
-                "error",
-                4
-            ]
-        },
-        "parserOptions": {
-            "parser": "babel-eslint"
-        }
     },
     "postcss": {
         "plugins": {

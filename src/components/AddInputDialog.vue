@@ -8,20 +8,11 @@
                     <v-container>
                         <v-row>
                             <v-col>
-                                <v-text-field
-                                    filled
-                                    label="Input Name"
-                                    v-model="name"
-                                />
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col>
                                 <v-select
                                     filled
-                                    :items="value.formats"
+                                    :items="types"
                                     label="Format"
-                                    v-model="format"
+                                    v-model="type"
                                     @change="refreshInputChannels()"
                                 />
                             </v-col>
@@ -37,11 +28,17 @@
                         </v-row>
                         <v-row>
                             <v-col>
-                                <v-select
+                                <v-text-field
                                     filled
-                                    label="Channels"
-                                    v-model="channels"
-                                    :items="available_channels"
+                                    label="Input Name"
+                                    v-model="name"
+                                />
+                            </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col>
+                                <AudioChannelsSelector
+                                    v-model="channelselect"
                                 />
                             </v-col>
                         </v-row>
@@ -59,70 +56,70 @@
 </template>
 
 <script>
-const chcount = Object.freeze({
-    mono: 1,
-    stereo: 2,
-    '5.1': 6,
-});
+import AudioChannelsSelector from './AudioChannelsSelector';
+import * as SI from 'spatial_intercom_server';
 
 export default {
     props: ['value', 'nodes'],
     data() {
         return {
             name: '',
-            format: '',
+            type: null,
             node: '',
-            channels: '',
-            available_channels: [],
+            channelselect: { channelcount: undefined, node: {} },
         };
     },
     methods: {
         addInput() {
-            
-            let chRangeStart = this.available_channels.indexOf(this.channels);
-            
-            if(chRangeStart == -1)
-                return;
-        
-            let ccount = chcount[this.format];
-            
-            let nodeid = this.nodes.find(n => n.name == this.node).id;
-
-            this._io.emit('inputs.add', {
-                name: this.name,
-                format: this.format,
-                nodeid: nodeid,
-                ch_start: chRangeStart,
-                ch_count: ccount,
-            });
-
-            this.value.show = false;
+            if (
+                this.name &&
+                this.channelselect.channelcount != null &&
+                this.channelselect.channelindex != null &&
+                this.type != null
+            ) {
+                this._emit_to_node(
+                    this.selectedNode.id,
+                    'inputs',
+                    'add',
+                    SI.basicNodeAudioInputDescription(
+                        this.name,
+                        this.channelselect.channelindex,
+                        this.type
+                    )
+                );
+            }
         },
         refreshInputChannels() {
+            if (this.selectedNode) {
+                this.channelselect.node = this.selectedNode;
+            }
 
-            this.available_channels.length = 0;
-            let node = this.nodes.find(n => n.name == this.node);
+            if (this.type != undefined) {
+                this.channelselect.channelcount =
+                    SI.PortTypeChannelCount[SI.PortTypes[this.type]];
+            }
 
-            if (node) this.available_channels = node.channels.inputs;
-            else return (this.available_channels = []);
-
-            let chans = chcount[this.format];
-            let nchans = [];
-
-            for (let i = 0; (i + chans) < this.available_channels.length; ++i)
-                nchans.push(
-                    `${this.available_channels[i].name} - ${
-                        this.available_channels[i + chans - 1].name
-                    }`
-                );
-
-            this.available_channels = nchans;
+            console.log(this.channelselect);
         },
     },
     computed: {
         nodenames: function() {
             return this.nodes.map(n => n.name);
         },
+        types: function() {
+            let out = [];
+            for (let _key of Object.keys(SI.PortTypes)) {
+                if (isNaN(_key)) out.push(_key);
+            }
+            out.shift();
+            return out;
+        },
+        selectedNode: function() {
+            return this.nodes.find(node => node.name == this.node);
+        },
+    },
+    components: {
+        AudioChannelsSelector,
     },
 };
 </script>

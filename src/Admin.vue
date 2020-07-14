@@ -20,7 +20,15 @@
                         <v-list-item-title>Users</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
-                    <v-list-item link v-on:click="nav('/admin/inputs')">
+                <v-list-item link v-on:click="nav('/admin/rooms')">
+                    <v-list-item-action>
+                        <v-icon>settings_overscan</v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>Rooms</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item link v-on:click="nav('/admin/inputs')">
                     <v-list-item-action>
                         <v-icon>input</v-icon>
                     </v-list-item-action>
@@ -87,7 +95,7 @@
         </v-content>
 
         <v-footer app>
-            <span>&copy; 2019 Jonas Ohland</span>
+            <span>&copy; 2020 Jonas Ohland</span>
             <v-spacer></v-spacer>
             <span>
                 <v-switch
@@ -99,7 +107,7 @@
                 />
             </span>
         </v-footer>
-        </v-app>
+    </v-app>
 </template>
 
 <script>
@@ -107,12 +115,12 @@ const MSGTypes = Object.freeze({ INFO: 1, WARN: 2, ERROR: 3 });
 
 function msgTypeString(ty) {
     switch (ty) {
-    case MSGTypes.INFO:
-        return 'success';
-    case MSGTypes.WARN:
-        return 'warning';
-    case MSGTypes.ERROR:
-        return 'error';
+        case MSGTypes.INFO:
+            return 'success';
+        case MSGTypes.WARN:
+            return 'warning';
+        case MSGTypes.ERROR:
+            return 'error';
     }
 }
 
@@ -176,6 +184,18 @@ export default {
                 );
             }
         });
+
+        this._io.on('showerror', (title, err_string) => {
+            self.errorMsg(title, err_string);
+        });
+
+        this._io.on('notification', (title, err_string) => {
+            self.notificationMsg(title, err_string);
+        });
+
+        this._io.on('warning', (title, err_string) => {
+            self.warnMsg(title, err_string);
+        });
     },
     data: () => ({
         drawer: null,
@@ -205,6 +225,30 @@ export default {
                 group: 'all',
                 title: 'Connection',
                 type: msgTypeString(ty),
+                text: msg,
+            });
+        },
+        errorMsg(title, msg) {
+            this.$notify({
+                group: 'all',
+                title,
+                type: msgTypeString(MSGTypes.ERROR),
+                text: msg,
+            });
+        },
+        warnMsg(title, msg) {
+            this.$notify({
+                group: 'all',
+                title,
+                type: msgTypeString(MSGTypes.WARN),
+                text: msg,
+            });
+        },
+        notificationMsg(title, msg) {
+            this.$notify({
+                group: 'all',
+                title,
+                type: msgTypeString(MSGTypes.INFO),
                 text: msg,
             });
         },

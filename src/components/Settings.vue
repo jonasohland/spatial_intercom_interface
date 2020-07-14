@@ -1,6 +1,6 @@
 <template>
     <div id="settings" style="display: inline">
-        <v-list v-if="dataReady">
+        <v-list>
             <v-list-group
                 v-for="item in items"
                 :key="item.id"
@@ -43,8 +43,9 @@
                                     :items="item.options.audioIns"
                                     label="Audio Input Device"
                                     v-model="item.audioInputDevice"
-                                    @change="setInputDevice(item.nodename)"
+                                    @change="setInputDevice(item.id, item.audioInputDevice)"
                                     filled
+                                    hide-details
                                 ></v-select>
                             </v-col>
                             <v-col class="d-flex" cols="20" sm="6">
@@ -52,8 +53,9 @@
                                     :items="item.options.audioOuts"
                                     label="Audio Output Device"
                                     v-model="item.audioOutputDevice"
-                                    @change="setOutputDevice(item.nodename)"
+                                    @change="setOutputDevice(item.id, item.audioOutputDevice)"
                                     filled
+                                    hide-details
                                 ></v-select>
                             </v-col>
                             <v-col class="d-flex" cols="20" sm="3">
@@ -61,8 +63,9 @@
                                     :items="item.options.buffersizes"
                                     label="Buffersize"
                                     v-model="item.buffersize"
-                                    @change="setBuffersize(item.nodename)"
+                                    @change="setBuffersize(item.id, item.buffersize)"
                                     filled
+                                    hide-details
                                 ></v-select>
                             </v-col>
                             <v-col class="d-flex" cols="20" sm="3">
@@ -70,21 +73,22 @@
                                     :items="item.options.samplerates"
                                     label="Samplerate"
                                     v-model="item.samplerate"
-                                    @change="setSamplerate(item.nodename)"
+                                    @change="setSamplerate(item.id, item.samplerate)"
                                     filled
+                                    hide-details
                                 ></v-select>
                             </v-col>
                             <v-col class="d-flex" cols="20" sm="6">
                                 <v-switch
                                     label="Open Device"
                                     v-model="item.device_open"
-                                    @change="setDeviceOpen(item.nodename)"
+                                    @change="setDeviceOpen(item.id, item.device_open)"
                                 ></v-switch>
                                 <v-switch
                                     style="padding-left: 10px"
                                     label="Enable Audio Processing"
                                     v-model="item.dsp_on"
-                                    @change="setDSPEnabled(item.nodename)"
+                                    @change="setDSPEnabled(item.id, item.dsp_on)"
                                 ></v-switch>
                             </v-col>
                         </v-row>
@@ -92,7 +96,7 @@
                 </v-list-item-content>
             </v-list-group>
         </v-list>
-        <v-overlay :absolute="true" :opacity="0.5" :value="operationOngoing">
+        <v-overlay :absolute="true" :opacity="0.5" :value="block">
             <v-progress-circular
                 indeterminate
                 color="white"
@@ -109,92 +113,103 @@ export default {
         return {
             updateDspUseInterval: null,
             dataReady: false,
-            operationOngoing: true,
+            block: true,
             items: [],
             dspuse: []
         };
     },
     mounted() {
-        let self = this;
+        this._join_server_room('server', 'nodes');
 
-        this._io.emit('audiosettings.update');
-
-        this._io.on('audiosettings.update.done', data => {
-            this.items = data;
-
-            self.dataReady = true;
-            self.operationOngoing = false;
+        this._io.on('server.nodes', (nodes) => {
+            nodes.forEach(node => {
+                console.log(node);
+                this._emit_to_node(node.id, 'audiosettings', 'update');
+            });
         });
 
-        this._io.on('audiosettings.operation.done', () => {
-            self.operationOngoing = false;
+        this._io.on('audiosettings.update.done', (data) => {
+            console.log(data);
+            this.block = false;
+
+            let idx = this.items.findIndex(it => it.id == data.id);
+            if(idx != -1) {
+                Object.assign(this.items[idx], data);
+            } else {
+                this.items.push(data);
+            }
         });
 
-        this._io.on('audiosettings.dspuse', node => {
-            
-            let it = this.items.find(item => item.id == node.id);
-
-            if(it)
-                it.dspUse = node.value;
-        })
-
-        this.updateDspUseInterval = setInterval(() => {
-            self._io.emit('audiosettings.dspuse');
-        }, 500);
+        this._io.on('audiosettings.done', () => {
+            this.block = false;
+        });
     },
     beforeDestroy() {
-        clearInterval(this.updateDspUseInterval);
+        this._leave_server_room('server', 'nodes');
+        this._io.removeAllListeners('audiosettings.update.done');
+        this._io.removeAllListeners('audiosettings.done');
+        this._io.removeAllListeners('server.nodes');
     },
     methods: {
-        setInputDevice(node) {
-            this._io.emit(
-                'audiosettings.inputdevice.set',
-                node,
-                this.items.find(inode => inode.nodename == node)
+        setInputDevice(id) {
+            this._emit_to_node(
+                id,
+                'audiosettings',
+                'inputdevice',
+                this.items.find(inode => inode.id == id)
                     .audioInputDevice
             );
-            this.operationOngoing = true;
+            this.block = true;
         },
-        setOutputDevice(node) {
-            this._io.emit(
-                'audiosettings.outputdevice.set',
-                node,
-                this.items.find(inode => inode.nodename == node)
+        setOutputDevice(id) {
+            this._emit_to_node(
+                id,
+                'audiosettings',
+                'outputdevice',
+                this.items.find(inode => inode.id == id)
                     .audioOutputDevice
             );
-            this.operationOngoing = true;
+            this.block = true;
         },
-        setBuffersize(node) {
-            this._io.emit(
-                'audiosettings.buffersize.set',
-                node,
-                this.items.find(inode => inode.nodename == node).buffersize
+        setBuffersize(id) {
+            this._emit_to_node(
+                id,
+                'audiosettings',
+                'buffersize',
+                this.items.find(inode => inode.id == id)
+                    .buffersize
             );
-            this.operationOngoing = true;
+            this.block = true;
         },
-        setSamplerate(node) {
-            this._io.emit(
-                'audiosettings.samplerate.set',
-                node,
-                this.items.find(inode => inode.nodename == node).samplerate
+        setSamplerate(id) {
+            this._emit_to_node(
+                id,
+                'audiosettings',
+                'samplerate',
+                this.items.find(inode => inode.id == id)
+                    .samplerate
             );
-            this.operationOngoing = true;
+            this.block = true;
         },
-        setDSPEnabled(node) {
-            this._io.emit(
-                'audiosettings.dsp.enabled',
-                node,
-                this.items.find(inode => inode.nodename == node).dsp_on
+        setDSPEnabled(id) {
+            this._emit_to_node(
+                id,
+                'audiosettings',
+                'dspenabled',
+                this.items.find(inode => inode.id == id)
+                    .dsp_on
             );
-            this.operationOngoing = true;
+            this.block = true;
         },
-        setDeviceOpen(node) {
-            this._io.emit(
-                'audiosettings.device.open',
-                node,
-                this.items.find(inode => inode.nodename == node).device_open
+        setDeviceOpen(id) {
+            this._emit_to_node(
+                id,
+                'audiosettings',
+                'open',
+                this.items.find(inode => inode.id == id)
+                    .device_open
             );
-            this.operationOngoing = true;
+            this.block = true;
         },
         getIoLatency(buf, sr) {
             return buf / sr * 1000;

@@ -9,12 +9,21 @@
             align="center"
             style="position: absolute; top: 0px; width: 100%; margin: 20px"
         >
-            <v-col cols="12">
+            <!-- <v-col cols="7">
                 <span style="color: grey"> Selected: </span>
                 {{ selection.name }}
                 <v-spacer />
                 <span style="color: grey"> Short: </span> {{ selection.short }}
+            </v-col> -->
+            <v-col cols="4">
+                <v-select
+                    label="SELECTED"
+                    :items="source_names"
+                    v-model="selection.name"
+                    @change="onSourceSelect"
+                />
             </v-col>
+            <v-col cols="8"> </v-col>
         </v-row>
         <v-container style="padding: 0px; max-width: none">
             <canvas id="pan-canvas" style="height: 80%; width: 100%" />
@@ -72,18 +81,19 @@ export default {
                 {
                     id: 1,
                     name: 'Kamera 2',
-                    short: 'K1',
+                    short: 'K2',
                     a: Math.PI / 7,
                     e: Math.PI / 5,
                 },
                 {
                     id: 2,
                     name: 'Kamera 3',
-                    short: 'K1',
+                    short: 'K3',
                     a: Math.PI / 10,
                     e: Math.PI / 5,
                 },
             ],
+            selected_source: '',
             tooltip: {
                 show: false,
                 txt: 'Error!',
@@ -94,7 +104,7 @@ export default {
                 name: '(None)',
                 short: '/',
                 a_deg: 0,
-                e_deg: 0
+                e_deg: 0,
             },
         };
     },
@@ -103,7 +113,7 @@ export default {
 
         // this until the whole site has been rendered, so we can get the correct canvas size
         setTimeout(() => {
-            this.panner.attach('pan-canvas', 'user-pan');
+            this.panner.attach('pan-canvas');
 
             this.panner.displayTooltip = function(text, x, y) {
                 self.tooltip.txt = text;
@@ -118,21 +128,10 @@ export default {
 
             this.panner.setData(this.sources);
 
-            this.panner.onSelect = function() {
-
-                let s = self.panner.getSelected()
-
-                self.selection.a_deg = s.a_deg;
-                self.selection.e_deg = s.e_deg;
-                self.selection.name = s.name;
-                self.selection.short = s.short;
-            };
+            this.panner.onSelect = function() {};
 
             this.panner.onDeselect = function() {
-                self.selection = {
-                    name: '(none)',
-                    short: '/',
-                };
+                (self.selection.name = ''), (self.selection.short = null);
             };
         }, 20);
     },
@@ -142,13 +141,19 @@ export default {
         },
         updateElv() {
             let s = this.panner.getSelected();
-            if(s)
-                s.setElvDeg(this.selection.e_deg);
+            if (s) s.setElvDeg(this.selection.e_deg);
         },
         updateAzm() {
             let s = this.panner.getSelected();
-            if(s)
-                s.setAzmDeg(this.selection.a_deg);
+            if (s) s.setAzmDeg(this.selection.a_deg);
+        },
+        onSourceSelect() {
+            console.log(this.sources.find(s => s.name == this.selected_source));
+        },
+    },
+    computed: {
+        source_names: function() {
+            return this.sources.map(s => s.name);
         },
     },
 };
