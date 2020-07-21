@@ -4,7 +4,7 @@
     <v-app id="admin-container">
         <v-navigation-drawer v-model="drawer" app expand-on-hover>
             <v-list dense nav>
-                <v-list-item link v-on:click="nav('/admin/users')">
+                <v-list-item link v-on:click="nav('/admin/dashboard')">
                     <v-list-item-action>
                         <v-icon>dashboard</v-icon>
                     </v-list-item-action>
@@ -89,21 +89,22 @@
             </span>
         </v-app-bar>
 
-        <v-content>
+        <v-main>
             <router-view class="view" name="admin"></router-view>
             <notifications group="all" position="bottom left" />
-        </v-content>
+        </v-main>
 
         <v-footer app>
             <span>&copy; 2020 Jonas Ohland</span>
             <v-spacer></v-spacer>
             <span>
                 <v-switch
-                    v-model="$vuetify.theme.dark"
+                    v-model="is_dark"
                     primary
                     label="Dark"
                     style="padding: 0px; margin: 0px"
                     hide-details
+                    @change="changeTheme()"
                 />
             </span>
         </v-footer>
@@ -128,8 +129,13 @@ export default {
     props: {
         source: String,
     },
+    created() {
+        this.$vuetify.theme.dark = false;
+    },
     mounted() {
         let self = this;
+
+        this.online = this._io.connected;
 
         this._io.on('connect', () => {
             self.conMsg('Connected to server', MSGTypes.INFO);
@@ -196,21 +202,48 @@ export default {
         this._io.on('warning', (title, err_string) => {
             self.warnMsg(title, err_string);
         });
+
+        this.$cookies.config('30d');
+        let theme_is_dark = this.$cookies.get('si-manager-theme-dark');
+
+        if(typeof theme_is_dark == 'string') {
+            switch(theme_is_dark) {
+                case 'true':
+                    theme_is_dark = true;
+                    break;
+                default:
+                    theme_is_dark = false;
+                    
+            }
+        }
+
+        if(theme_is_dark != null) 
+            this.is_dark = theme_is_dark;
+        else
+            theme_is_dark = false;
+
+        this.is_dark = theme_is_dark;
+        
+        this.$vuetify.theme.dark = this.is_dark;
+        this.$cookies.set('si-manager-theme-dark', this.is_dark);
     },
     data: () => ({
         drawer: null,
-        online: false,
         dsp: false,
+        is_dark: false,
+        online: false
     }),
-    created() {
-        this.$vuetify.theme.dark = false;
-    },
     methods: {
         nav(target) {
             if (this.$route.path != target) {
                 this._io.emit('nav', target);
                 this.$router.push(target);
             }
+        },
+        changeTheme() {
+            this.$vuetify.theme.dark = this.is_dark;
+            this.$cookies.remove('si-manager-theme-dark');
+            this.$cookies.set('si-manager-theme-dark', this.is_dark);
         },
         htrkMsg(msg, ty) {
             this.$notify({

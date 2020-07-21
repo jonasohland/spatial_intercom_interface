@@ -6,11 +6,15 @@ import io from 'socket.io-client';
 import Notifications from 'vue-notification';
 
 import VueRouter from 'vue-router';
+import VueCookies from 'vue-cookies';
 import vuetify from './plugins/vuetify';
+
+import Main from './Main.vue';
 
 import Admin from './Admin.vue';
 import User from './User.vue';
 
+import Dashboard from './components/Dashboard';
 import Headtracking from './components/Headtracking';
 import Settings from './components/Settings';
 import Users from './components/Users';
@@ -115,6 +119,7 @@ Vue.prototype._io.on('reconnect', () => {
 });
 
 Vue.use(VueRouter);
+Vue.use(VueCookies);
 Vue.use(vuetify);
 Vue.use(Notifications);
 Vue.use(AsyncComputed);
@@ -124,11 +129,18 @@ const router = new VueRouter({
     base: __dirname,
     routes: [
         {
+            path: '/',
+            components: {
+                default: Main
+            }
+        },
+        {
             path: '/admin',
             components: {
                 default: Admin,
             },
             children: [
+                { path: 'dashboard', components: { admin: Dashboard } },
                 { path: 'headtracking', components: { admin: Headtracking } },
                 { path: 'settings', components: { admin: Settings } },
                 { path: 'users', components: { admin: Users } },

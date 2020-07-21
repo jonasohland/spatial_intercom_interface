@@ -131,6 +131,9 @@ export default {
                     this.value.currentindex
                 );
             }
+            if(this.value.channelindex) {
+                this.value.channelindex = Number.parseInt(this.value.channelindex);
+            }
             if (
                 this.value.node &&
                 this.value.node.id &&
@@ -156,6 +159,7 @@ export default {
                         ),
                         { timeout: 5000 }
                     );
+                    console.log("Response");
                     this.loading = false;
                     this.cache.nodeid = this.value.node.id;
                     if (list) {
@@ -176,6 +180,7 @@ export default {
                         return this.buildChannelList(this.cache.channels);
                     }
                 } catch (err) {
+                    console.log(err);
                     return this.buildChannelList(defaultList());
                 }
             } else {
