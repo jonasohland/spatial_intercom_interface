@@ -59,6 +59,9 @@
             <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
             <v-toolbar-title>Spatial Intercom Manager</v-toolbar-title>
             <v-spacer />
+            <v-btn class="ma-5" shaped color="blue" :dark="online" :disabled="!online" @click="commit()">
+                COMMIT TO DSP
+            </v-btn>
             <span>Server:</span>
             <span v-if="online">
                 <v-chip class="ma-2" color="green" text-color="white"
@@ -68,23 +71,6 @@
             <span v-if="!online">
                 <v-chip class="ma-2" color="red" text-color="white"
                     >OFFLINE</v-chip
-                >
-            </span>
-
-            <span>DSP:</span>
-            <span v-if="online && dsp">
-                <v-chip class="ma-2" color="green" text-color="white"
-                    >RUNNING</v-chip
-                >
-            </span>
-            <span v-if="online && !dsp">
-                <v-chip class="ma-2" color="blue" text-color="white"
-                    >STOPPED</v-chip
-                >
-            </span>
-            <span v-if="!online">
-                <v-chip class="ma-2" color="grey" text-color="white"
-                    >UNKNOWN</v-chip
                 >
             </span>
         </v-app-bar>
@@ -234,6 +220,9 @@ export default {
         online: false
     }),
     methods: {
+        commit() {
+            this._io.emit('-graph-controller.committodsp');
+        },
         nav(target) {
             if (this.$route.path != target) {
                 this._io.emit('nav', target);

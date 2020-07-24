@@ -89,7 +89,7 @@
                         max="20"
                         step="0.1"
                         v-model="room.room.size"
-                        @input="serverSetValue(room.room.size, 'room', 'size')"
+                        @input="serverSetValue(room.room.size, 'room')"
                         @change="updateRoom()"
                     />
                 </v-col>
@@ -102,7 +102,7 @@
                         step="0.01"
                         v-model="room.room.depth"
                         @input="
-                            serverSetValue(room.room.depth, 'room', 'depth')
+                            serverSetValue(room.room.depth, 'room')
                         "
                         @change="updateRoom()"
                     />
@@ -116,7 +116,7 @@
                         step="0.01"
                         v-model="room.room.height"
                         @input="
-                            serverSetValue(room.room.height, 'room', 'height')
+                            serverSetValue(room.room.height, 'room')
                         "
                         @change="updateRoom()"
                     />
@@ -130,7 +130,7 @@
                         step="0.01"
                         v-model="room.room.width"
                         @input="
-                            serverSetValue(room.room.width, 'room', 'width')
+                            serverSetValue(room.room.width, 'room')
                         "
                         @change="updateRoom()"
                     />
@@ -152,7 +152,7 @@
                         step="0.01"
                         v-model="room.attn.front"
                         @input="
-                            serverSetValue(room.attn.front, 'attn', 'front')
+                            serverSetValue(room.attn.front, 'attn')
                         "
                         @change="updateRoom()"
                     />
@@ -165,7 +165,7 @@
                         max="1"
                         step="0.01"
                         v-model="room.attn.left"
-                        @input="serverSetValue(room.attn.left, 'attn', 'left')"
+                        @input="serverSetValue(room.attn.left, 'attn')"
                         @change="updateRoom()"
                     />
                 </v-col>
@@ -178,7 +178,7 @@
                         step="0.01"
                         v-model="room.attn.right"
                         @input="
-                            serverSetValue(room.attn.right, 'attn', 'right')
+                            serverSetValue(room.attn.right, 'attn')
                         "
                         @change="updateRoom()"
                     />
@@ -193,7 +193,7 @@
                         max="1"
                         step="0.01"
                         v-model="room.attn.back"
-                        @input="serverSetValue(room.attn.back, 'attn', 'back')"
+                        @input="serverSetValue(room.attn.back, 'attn')"
                         @change="updateRoom()"
                     />
                 </v-col>
@@ -206,7 +206,7 @@
                         step="0.01"
                         v-model="room.attn.ceiling"
                         @input="
-                            serverSetValue(room.attn.ceiling, 'attn', 'ceiling')
+                            serverSetValue(room.attn.ceiling, 'attn')
                         "
                         @change="updateRoom()"
                     />
@@ -220,7 +220,7 @@
                         step="0.01"
                         v-model="room.attn.floor"
                         @input="
-                            serverSetValue(room.attn.floor, 'attn', 'floor')
+                            serverSetValue(room.attn.floor, 'attn')
                         "
                         @change="updateRoom()"
                     />
@@ -236,7 +236,7 @@
                         step="1"
                         v-model="room.eq.high.gain"
                         @input="
-                            serverSetValue(room.eq.high.gain, 'eq', 'high.gain')
+                            serverSetValue(room.eq.high.gain, 'eq')
                         "
                         @change="updateRoom()"
                     />
@@ -250,7 +250,7 @@
                         step="1"
                         v-model="room.eq.high.freq"
                         @input="
-                            serverSetValue(room.eq.high.freq, 'eq', 'high.freq')
+                            serverSetValue(room.eq.high.freq, 'eq')
                         "
                         @change="updateRoom()"
                     />
@@ -266,7 +266,7 @@
                         step="1"
                         v-model="room.eq.low.gain"
                         @input="
-                            serverSetValue(room.eq.low.gain, 'eq', 'low.gain')
+                            serverSetValue(room.eq.low.gain, 'eq')
                         "
                         @change="updateRoom()"
                     />
@@ -280,7 +280,7 @@
                         step="1"
                         v-model="room.eq.low.freq"
                         @input="
-                            serverSetValue(room.eq.low.freq, 'eq', 'low.freq')
+                            serverSetValue(room.eq.low.freq, 'eq')
                         "
                         @change="updateRoom()"
                     />
@@ -338,19 +338,14 @@ export default {
             this.room = this.rooms[this.selected_room];
             this.tabbarcolor = roomcolors[this.room.letter];
         },
-        serverSetValue(value, name, key) {
+        serverSetValue(value, name) {
             if (this.selected_node == undefined) return;
 
-            console.log(
-                `Emit to ${
-                    this.nodes[this.selected_node].id
-                } [set-${name}] ${value}`
-            );
             this._emit_to_node(
                 this.nodes[this.selected_node].id,
                 'rooms',
                 `set-${name}`,
-                { key, value }
+                this.room
             );
         },
         updateRoom() {

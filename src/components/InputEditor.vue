@@ -86,7 +86,7 @@
 
 <script>
 import AudioChannelsSelector from './AudioChannelsSelector';
-import { PortTypes, PortTypeChannelCount } from 'spatial_intercom_server';
+import { PortTypes, SourceUtils } from 'spatial_intercom_server';
 
 function atodb(amplitude) {
     return 20 * Math.log10(amplitude);
@@ -138,7 +138,7 @@ export default {
             let obj = {
                 node: this.value.node,
                 channelcount:
-                    PortTypeChannelCount[PortTypes[this.value.input.type]],
+                    SourceUtils[PortTypes[this.value.input.type]].channels,
                 channelindex: this.value.input.channel,
             };
             return obj;

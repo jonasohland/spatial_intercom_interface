@@ -96,7 +96,7 @@ export default {
 
             if (this.type != undefined) {
                 this.channelselect.channelcount =
-                    SI.PortTypeChannelCount[SI.PortTypes[this.type]];
+                    SI.SourceUtils[SI.PortTypes[this.type]].channels;
             }
 
             console.log(this.channelselect);

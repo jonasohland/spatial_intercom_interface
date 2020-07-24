@@ -114,6 +114,7 @@
                             v-model="input.azm"
                             thumb-label
                             @change="userInputModified(input_idx)"
+                            @input="setAzm(input_idx, input.azm)"
                         >
                         </v-slider>
                     </v-col>
@@ -126,6 +127,7 @@
                             v-model="input.elv"
                             thumb-label
                             @change="userInputModified(input_idx)"
+                            @input="setElv(input_idx, input.elv)"
                         >
                         </v-slider>
                     </v-col>
@@ -274,6 +276,21 @@ export default {
                     recompile,
                 }
             );
+        },
+        setAzm(input_idx, azm) {
+            this._emit_to_node(this.value.node.id, 'users', 'user.input.azm', {
+                userid: this.value.user.id,
+                spid: this.inputs[input_idx].id,
+                value: azm
+            });
+        },
+        setElv(input_idx, elv) {
+            console.log(elv);
+            this._emit_to_node(this.value.node.id, 'users', 'user.input.elv', {
+                userid: this.value.user.id,
+                spid: this.inputs[input_idx].id,
+                value: elv
+            });
         },
         editInput(input_idx) {},
         deleteInput(input_idx) {
