@@ -52,7 +52,7 @@
                         :items="headtrackers"
                         label="Headtracker"
                         v-model="value.user.headtracker"
-                        @change="changed()"
+                        @change="assignHeadtracker()"
                         hide-details
                     />
                 </v-col>
@@ -276,6 +276,13 @@ export default {
                     recompile,
                 }
             );
+        },
+        assignHeadtracker() {
+            this._emit_to_node(this.value.node.id, 'users', 'user.headtracker', {
+                userid: this.value.user.id,
+                headtrackerid: this.value.user.headtracker
+            });
+            this.changed();
         },
         setAzm(input_idx, azm) {
             this._emit_to_node(this.value.node.id, 'users', 'user.input.azm', {

@@ -38,13 +38,33 @@
                 style="margin-bottom: 0px"
             />
             <v-row style="padding-left: 15px">
-
                 <v-col class="d-inline-flex align-center"
                     ><v-label>Invert</v-label></v-col
                 >
-                <v-col><v-checkbox style="margin-top: 0px" label="X" hide-details @change="invertChanged()" v-model="_d.invert.x"/></v-col>
-                <v-col><v-checkbox style="margin-top: 0px" label="Y" hide-details @change="invertChanged()" v-model="_d.invert.y"/> </v-col>
-                <v-col> <v-checkbox style="margin-top: 0px" label="Z" hide-details @change="invertChanged()" v-model="_d.invert.z"/></v-col
+                <v-col
+                    ><v-checkbox
+                        style="margin-top: 0px"
+                        label="X"
+                        hide-details
+                        @change="invertChanged()"
+                        v-model="_d.invert.x"
+                /></v-col>
+                <v-col
+                    ><v-checkbox
+                        style="margin-top: 0px"
+                        label="Y"
+                        hide-details
+                        @change="invertChanged()"
+                        v-model="_d.invert.y"
+                    />
+                </v-col>
+                <v-col>
+                    <v-checkbox
+                        style="margin-top: 0px"
+                        label="Z"
+                        hide-details
+                        @change="invertChanged()"
+                        v-model="_d.invert.z"/></v-col
             ></v-row>
 
             <v-switch
@@ -57,8 +77,32 @@
             <!--<v-text-field class="textin" label="IP Address"/>
       <v-text-field class="textin" label="Subnet Mask"/>-->
 
-            <v-btn small color="primary" style="margin: 15px" @click="resetOrientation()"> RESET ORIENTATION </v-btn>
-            <v-divider/>
+            <v-btn
+                small
+                color="primary"
+                style="margin: 15px"
+                @click="resetOrientation()"
+            >
+                RESET ORIENTATION
+            </v-btn>
+            <br>
+            <v-btn
+                small
+                color="primary"
+                style="margin: 15px"
+                @click="calibrateOne()"
+            >
+                CALIBRATE 1
+            </v-btn>
+            <v-btn
+                small
+                color="primary"
+                style="margin: 15px"
+                @click="calibrateTwo()"
+            >
+                CALIBRATE 2
+            </v-btn>
+            <v-divider />
             <v-card-actions>
                 <v-btn text v-on:click="save">SAVE</v-btn>
                 <v-btn text v-on:click="reboot">REBOOT</v-btn>
@@ -97,6 +141,12 @@ export default {
         },
         resetOrientation() {
             this._io.emit('htrk.reset.orientation', this._d.id);
+        },
+        calibrateOne() {
+            this._io.emit('htrk.init.1', this._d.id);
+        },
+        calibrateTwo() {
+            this._io.emit('htrk.init.2', this._d.id);
         },
         doShowSettings() {
             this.showSettings = true;

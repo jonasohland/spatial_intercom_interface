@@ -231,8 +231,8 @@
                     <v-slider
                         label="High Band Gain"
                         thumb-label
-                        min="-80"
-                        max="0"
+                        min="-15"
+                        max="5"
                         step="1"
                         v-model="room.eq.high.gain"
                         @input="
@@ -261,8 +261,8 @@
                     <v-slider
                         label="Low Band Gain"
                         thumb-label
-                        min="-80"
-                        max="0"
+                        min="-15"
+                        max="5"
                         step="1"
                         v-model="room.eq.low.gain"
                         @input="
