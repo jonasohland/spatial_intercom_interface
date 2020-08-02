@@ -224,7 +224,10 @@ export default {
 
         this._io.on('user.inputs.update', (userid, inputs) => {
             this.loading_inputs = false;
-            this.inputs = inputs;
+            this.inputs = inputs.map(input => {
+                input.show = false;
+                return input;
+            });
         });
     },
     beforeDestroy() {

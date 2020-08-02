@@ -86,6 +86,7 @@
                                                 class="justify-center"
                                                 cols="1"
                                             >
+                                                <SpatializedChannelDetails v-model="value.inputs[i]"/>
                                                 <v-btn
                                                     :color="
                                                         input.mute
@@ -201,6 +202,7 @@
 
 <script>
 import UsersAddInputDialog from './UsersAddInputDialog';
+import SpatializedChannelDetails from './SpatializedChannelDetails';
 
 export default {
     props: ['value', 'aux'],
@@ -291,6 +293,7 @@ export default {
     },
     components: {
         UsersAddInputDialog,
+        SpatializedChannelDetails
     },
 };
 </script>

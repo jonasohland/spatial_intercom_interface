@@ -29,7 +29,7 @@
                             </span>
                             <v-spacer />
                             <span style="padding-bottom: 30px">
-                                DSP usage: {{ (item.dspUse * 100).toFixed(0) }}%
+                                DSP usage: {{ (item.dspuse * 100).toFixed(0) }}%
                             </span>
                             <span
                                 style="padding-bottom: 30px; padding-left: 20px"
@@ -115,15 +115,26 @@ export default {
             dataReady: false,
             block: true,
             items: [],
-            dspuse: []
+            dspuse: [],
+            nodes: [],
+            node_listeners: {}
         };
     },
     mounted() {
         this._join_server_room('server', 'nodes');
-
+        let self = this;
+        this.resetAllListeners();
         this._io.on('server.nodes', (nodes) => {
             nodes.forEach(node => {
                 console.log(node);
+                node.dspuse = 0.3;
+                this.node_listeners[node.id] = {
+                    dspuse_listener: (dspuse) => {
+                        self.setDSPUseVal(node.id, dspuse)
+                    }
+                }
+                this._join_node_room(node.id, 'node-audio-devices', 'dspuse');
+                this._io.on(`${node.id}-dspuse`, this.node_listeners[node.id].dspuse_listener);
                 this._emit_to_node(node.id, 'audiosettings', 'update');
             });
         });
@@ -136,6 +147,7 @@ export default {
             if(idx != -1) {
                 Object.assign(this.items[idx], data);
             } else {
+                data.dspuse = 0;
                 this.items.push(data);
             }
         });
@@ -151,6 +163,22 @@ export default {
         this._io.removeAllListeners('server.nodes');
     },
     methods: {
+        resetAllListeners() {
+            this.nodes.forEach(node => {
+                if(this.node_listeners[node.id]) {
+                    this._leave_node_room(node.id, 'node-audio-devices', 'dspuse');
+                    this._io.off(`${node.id}-dspuse`, this.node_listeners[node.id].dspuse_listener);
+                }
+            })
+        },
+        setDSPUseVal(nodeid, val) {
+            let n = this.items.find(node => node.id == nodeid);
+            if(n) {
+                console.log(val);
+                n.dspuse = val;
+                this.$forceUpdate();
+            }
+        },
         setInputDevice(id) {
             this._emit_to_node(
                 id,

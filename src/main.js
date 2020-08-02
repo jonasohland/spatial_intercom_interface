@@ -31,7 +31,7 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
 Vue.config.productionTip = false;
 Vue.config.strict = false;
 
-Vue.prototype._io = io(`ws://${location.host.split(':')[0]}:45040`, {
+Vue.prototype._io = io(`ws://127.0.0.1:45040`, {
     maxReconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
@@ -47,6 +47,11 @@ Vue.prototype._emit_to_node = (nodeid, module, event, data) => {
 Vue.prototype._emit_to_server = (event, data) => {
     Vue.prototype._io.emit(`-server.${event}`, data);
 };
+
+Vue.prototype._emit_to_server_module = (module, event, data) => {
+    console.log(`-${module}.${event}`);
+    Vue.prototype._io.emit(`-${module}.${event}`, data);
+}
 
 Vue.prototype._join_node_room = (nodeid, module, topic) => {
     Vue.prototype._io.emit('join-node', nodeid, module, topic);

@@ -14,6 +14,7 @@
         "paper": "^0.12.4",
         "socket.io-client": "^2.3.0",
         "spatial_intercom_server": "github:jonasohland/si_deploy",
+        "truncate": "^2.1.0",
         "typeface-nanum-gothic-coding": "0.0.63",
         "vue": "^2.6.11",
         "vue-async-computed": "^3.8.2",

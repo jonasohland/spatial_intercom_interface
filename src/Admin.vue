@@ -55,13 +55,24 @@
             </v-list>
         </v-navigation-drawer>
 
-        <v-app-bar app>
+        <v-app-bar app id="mainnav">
             <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
             <v-toolbar-title>Spatial Intercom Manager</v-toolbar-title>
-            <v-spacer />
-            <v-btn class="ma-5" shaped color="blue" :dark="online" :disabled="!online" @click="commit()">
-                COMMIT TO DSP
-            </v-btn>
+            <v-spacer/>
+            <span class="mr-3">
+                COMMIT DSP GRAPH: 
+            </span>
+                <v-overflow-btn
+                    class="mt-5 mr-6"
+                    label="COMMIT TO DSP"
+                    style="max-width: 300px"
+                    target="#mainnav"
+                    segmented
+                    :items="nodes"
+                    :disabled="!online"
+                >
+                    COMMIT TO DSP
+                </v-overflow-btn>
             <span>Server:</span>
             <span v-if="online">
                 <v-chip class="ma-2" color="green" text-color="white"
@@ -99,6 +110,7 @@
 
 <script>
 const MSGTypes = Object.freeze({ INFO: 1, WARN: 2, ERROR: 3 });
+import truncate from 'truncate';
 
 function msgTypeString(ty) {
     switch (ty) {
@@ -122,6 +134,20 @@ export default {
         let self = this;
 
         this.online = this._io.connected;
+
+        this._join_server_room('server', 'nodes');
+
+        this._io.on('server.nodes', new_nodes => {
+            this.nodes = new_nodes.map(node => {
+                return {
+                    text: truncate(node.name, 24),
+                    callback: () => {
+                        console.log("Rebuild node " + node.id);
+                        this._emit_to_node(node.id, 'graph-controller', 'committnodeodsp');
+                    },
+                };
+            });
+        });
 
         this._io.on('connect', () => {
             self.conMsg('Connected to server', MSGTypes.INFO);
@@ -192,24 +218,21 @@ export default {
         this.$cookies.config('30d');
         let theme_is_dark = this.$cookies.get('si-manager-theme-dark');
 
-        if(typeof theme_is_dark == 'string') {
-            switch(theme_is_dark) {
+        if (typeof theme_is_dark == 'string') {
+            switch (theme_is_dark) {
                 case 'true':
                     theme_is_dark = true;
                     break;
                 default:
                     theme_is_dark = false;
-                    
             }
         }
 
-        if(theme_is_dark != null) 
-            this.is_dark = theme_is_dark;
-        else
-            theme_is_dark = false;
+        if (theme_is_dark != null) this.is_dark = theme_is_dark;
+        else theme_is_dark = false;
 
         this.is_dark = theme_is_dark;
-        
+
         this.$vuetify.theme.dark = this.is_dark;
         this.$cookies.set('si-manager-theme-dark', this.is_dark);
     },
@@ -217,8 +240,11 @@ export default {
         drawer: null,
         dsp: false,
         is_dark: false,
-        online: false
+        online: false,
+        nodes: [],
     }),
+    computed: {
+    },
     methods: {
         commit() {
             this._io.emit('-graph-controller.committodsp');
