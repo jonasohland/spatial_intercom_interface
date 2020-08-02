@@ -118,7 +118,7 @@ export default {
             return this.nodes.find(node => node.name == this.node);
         },
         canAdd() {
-            console.log('recompute');
+            // looks stupid, but we have to access all the props for vue to register them as dependencies
             let ok = true;
             if(this.name) {
                 if(this.name.length < 1)
