@@ -47,7 +47,7 @@
                 <v-card-actions
                     ><v-spacer />
                     <v-btn text @click="value.show = false">CLOSE</v-btn>
-                    <v-btn text @click="addInput()">ADD</v-btn>
+                    <v-btn text @click="addInput()" :disabled="!canAdd">ADD</v-btn>
                 </v-card-actions>
                 <v-divider />
             </v-card>
@@ -66,7 +66,7 @@ export default {
             name: '',
             type: null,
             node: '',
-            channelselect: { channelcount: undefined, node: {} },
+            channelselect: { channelcount: undefined, channelindex: -1, node: {} },
         };
     },
     methods: {
@@ -117,6 +117,31 @@ export default {
         selectedNode: function() {
             return this.nodes.find(node => node.name == this.node);
         },
+        canAdd() {
+            console.log('recompute');
+            let ok = true;
+            if(this.name) {
+                if(this.name.length < 1)
+                    ok = false;
+            } else
+                ok = false;
+
+            if(this.type != null) {
+                if(this.type.length < 1)
+                    ok = false;
+            } else
+                ok = false;
+
+            if(this.channelselect.channelindex) {
+                if(this.channelselect.channelindex != null) {
+                    if(isNaN(this.channelselect.channelindex) || this.channelselect.channelindex < 0)
+                        ok = false;
+                }
+                    else ok = false;
+            } else ok = false;
+
+            return ok;
+        }
     },
     components: {
         AudioChannelsSelector,
