@@ -76,7 +76,7 @@
         </v-row>
         <v-row>
             <v-col>
-                <v-btn color="red" @click="deleteMe()">
+                <v-btn color="red" @click="deleteMe()" dark>
                     DELETE
                 </v-btn>
             </v-col>

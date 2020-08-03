@@ -74,6 +74,9 @@
                         @input="acsInput"
                     />
                 </v-col>
+                <v-col>
+                    <v-text-field :value="usersettingsurl" />
+                </v-col>
             </v-row>
             <v-divider />
             <v-row>
@@ -341,7 +344,7 @@ export default {
         selector() {
             let obj = {
                 node: this.value.node,
-                channelcount: 2,
+                channelcount: 5,
                 channelindex: this.value.user.channel,
                 output: true,
             };
@@ -367,6 +370,9 @@ export default {
         rooms() {
             return ['ROOM A', 'ROOM B', 'ROOM C', 'ROOM D', 'ROOM E'];
         },
+        usersettingsurl() {
+            return `http://${window.location.host}/user/${this.value.user.id}/settings`;
+        }
     },
     components: {
         AudioChannelsSelector,

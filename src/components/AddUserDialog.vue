@@ -55,7 +55,7 @@ export default {
         return {
             name: '',
             node: '',
-            channelselect: { channelcount: 2, node: {}, output: true },
+            channelselect: { channelcount: 5, node: {}, output: true },
             is_ch_selected: false
         };
     },
