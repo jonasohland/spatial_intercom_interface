@@ -33,7 +33,13 @@ import 'typeface-roboto/index.css'
 Vue.config.productionTip = false;
 Vue.config.strict = false;
 
-Vue.prototype._io = io(`ws://${location.host.split(':')[0]}:45040`, {
+/*Vue.prototype._io = io(`ws://${location.host.split(':')[0]}:45040`, {
+    maxReconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+}); */
+
+Vue.prototype._io = io(`ws://127.0.0.1:45040`, {
     maxReconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,

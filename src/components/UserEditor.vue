@@ -1,6 +1,7 @@
 <template>
     <div>
         <SelectRoomDialog v-model="select_room_dialog" @input="roomSelected" />
+        <SpatializedInputDetails v-model="spt_input_details" @next="detailsNext()" @previous="detailsPrevious()"/>
         <UserSelectInputsDialog
             :value="select_inputs_dialog"
             @input="inputsSelected"
@@ -99,7 +100,7 @@
                 elevation="6"
             >
                 <v-row class="flex mr-2 ml-3 mt-3">
-                    <v-col sm="2">
+                    <v-col sm="2" align-self="center">
                         {{
                             availableInputs.find(inp => inp.id == input.inputid)
                                 ? availableInputs.find(
@@ -197,6 +198,7 @@
 import AudioChannelsSelector from './AudioChannelsSelector';
 import SelectRoomDialog from './SelectRoomDialog';
 import UserSelectInputsDialog from './UserSelectInputsDialog';
+import SpatializedInputDetails from './SpatializedInputDetails';
 import { roomcolors } from './roomcolors';
 
 export default {
@@ -218,11 +220,16 @@ export default {
                 availableInputs: [],
                 selectedInputs: [],
             },
+            spt_input_details: {
+                show: false,
+                input: null
+            }
         };
     },
     mounted() {
         this._io.on('inputs.update', (nodeid, inputs) => {
             this.availableInputs = inputs;
+            this.spt_input_details.availableInputs = inputs;
         });
 
         this._io.on('user.inputs.update', (userid, inputs) => {
@@ -305,7 +312,12 @@ export default {
                 value: elv
             });
         },
-        editInput(input_idx) {},
+        editInput(input_idx) {
+            this.spt_input_details.input = this.inputs[input_idx];
+            this.spt_input_details.node = this.value.node;
+            this.spt_input_details.show = true;
+            this.spt_input_details.idx = input_idx;
+        },
         deleteInput(input_idx) {
             this._emit_to_node(
                 this.value.node.id,
@@ -317,6 +329,20 @@ export default {
         roomColor(roomletter) {
             return roomcolors[roomletter];
         },
+        detailsNext() {
+            let idx = this.spt_input_details.idx || 0;
+            if(idx >= this.inputs.length - 1)
+                this.editInput(0);
+            else 
+                this.editInput(++idx);
+        },
+        detailsPrevious() {
+            let idx = this.spt_input_details.idx || 0;
+            if(idx == 0)
+                this.editInput(this.inputs.length - 1);
+            else
+                this.editInput(--idx);
+        }
     },
     watch: {
         value: function(newval, oldval) {
@@ -378,6 +404,7 @@ export default {
         AudioChannelsSelector,
         SelectRoomDialog,
         UserSelectInputsDialog,
+        SpatializedInputDetails
     },
 };
 </script>
