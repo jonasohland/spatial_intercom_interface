@@ -27,6 +27,8 @@ import UserSelfSettings from './components/UserSelfSettings';
 import AsyncComputed from 'vue-async-computed';
 
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
+import '@mdi/font/css/materialdesignicons.css';
+import 'typeface-roboto/index.css'
 
 Vue.config.productionTip = false;
 Vue.config.strict = false;

@@ -161,10 +161,11 @@ export default {
         this._io.removeAllListeners('audiosettings.update.done');
         this._io.removeAllListeners('audiosettings.done');
         this._io.removeAllListeners('server.nodes');
+        this.resetAllListeners();
     },
     methods: {
         resetAllListeners() {
-            this.nodes.forEach(node => {
+            this.items.forEach(node => {
                 if(this.node_listeners[node.id]) {
                     this._leave_node_room(node.id, 'node-audio-devices', 'dspuse');
                     this._io.off(`${node.id}-dspuse`, this.node_listeners[node.id].dspuse_listener);

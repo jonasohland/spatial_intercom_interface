@@ -132,7 +132,7 @@ export default {
             } else
                 ok = false;
 
-            if(this.channelselect.channelindex) {
+            if(this.channelselect) {
                 if(this.channelselect.channelindex != null) {
                     if(isNaN(this.channelselect.channelindex) || this.channelselect.channelindex < 0)
                         ok = false;
