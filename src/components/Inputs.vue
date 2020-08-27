@@ -109,10 +109,9 @@ export default {
     },
     mounted() {
         let self = this;
-        this._join_server_room('server', 'nodes');
-        this._emit_to_server('nodes');
+        this._join_server_room('server', 'DSP_NODE');
 
-        this._io.on('server.nodes', nodes => {
+        this.dspnodes_listener = nodes => {
 
             this.nodes = nodes.map(node => {
                 node.inputs = [];
@@ -122,7 +121,9 @@ export default {
             nodes.forEach(node => {
                 self._emit_to_node(node.id, 'inputs', 'update');
             });
-        });
+        }
+
+        this._io.on('server.nodes.DSP_NODE', this.dspnodes_listener);
 
         this._io.on('inputs.update', (nodeid, inputs) => {
             let n = this.nodes.find(node => node.id == nodeid);
@@ -130,7 +131,7 @@ export default {
         });
     },
     beforeDestroy() {
-        this._leave_server_room('server', 'nodes');
+        this._io.off('server.nodes.DSP_NODE', this.dspnodes_listener);
         this._io.removeAllListeners('server.nodes');
         this._io.removeAllListeners('inputs.update');
     },

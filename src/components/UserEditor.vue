@@ -1,7 +1,11 @@
 <template>
     <div>
         <SelectRoomDialog v-model="select_room_dialog" @input="roomSelected" />
-        <SpatializedInputDetails v-model="spt_input_details" @next="detailsNext()" @previous="detailsPrevious()"/>
+        <SpatializedInputDetails
+            v-model="spt_input_details"
+            @next="detailsNext()"
+            @previous="detailsPrevious()"
+        />
         <UserSelectInputsDialog
             :value="select_inputs_dialog"
             @input="inputsSelected"
@@ -77,6 +81,53 @@
                 </v-col>
                 <v-col>
                     <v-text-field :value="usersettingsurl" />
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col class="pt-6 text-h6">
+                    Crosstalk Cancellation
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col>
+                    <v-switch
+                        label="Enable for Binaural"
+                        hide-details
+                        v-model="value.user.xtc.enabled_bin"
+                        @change="xtcChanged()"
+                    />
+                </v-col>
+                <v-col>
+                    <v-switch
+                        label="Enable for Stereo"
+                        hide-details
+                        v-model="value.user.xtc.enabled_st"
+                        @change="xtcChanged()"
+                    />
+                </v-col>
+                <v-col>
+                    <v-text-field
+                        label="Speaker Distance (cm)"
+                        hide-details
+                        v-model="value.user.xtc.dist_spk"
+                        @change="xtcChanged()"
+                    />
+                </v-col>
+                <v-col>
+                    <v-text-field
+                        label="Ear Distance (cm)"
+                        hide-details
+                        v-model="value.user.xtc.dist_ears"
+                        @change="xtcChanged()"
+                    />
+                </v-col>
+                <v-col>
+                    <v-text-field
+                        label="Listener Distance (cm)"
+                        hide-details
+                        v-model="value.user.xtc.dist_listener"
+                        @change="xtcChanged()"
+                    />
                 </v-col>
             </v-row>
             <v-divider />
@@ -222,8 +273,8 @@ export default {
             },
             spt_input_details: {
                 show: false,
-                input: null
-            }
+                input: null,
+            },
         };
     },
     mounted() {
@@ -246,12 +297,30 @@ export default {
     },
     methods: {
         changed() {
+            this.value.user.xtc.dist_spk = Number.parseFloat(this.value.user.xtc.dist_spk);
+            this.value.user.xtc.dist_ears = Number.parseFloat(this.value.user.xtc.dist_ears);
+            this.value.user.xtc.dist_listener = Number.parseFloat(this.value.user.xtc.dist_listener);
             this._emit_to_node(
                 this.value.node.id,
                 'users',
                 'user.modify',
                 this.value.user
             );
+        },
+        xtcChanged() {
+            this.value.user.xtc.dist_spk = Number.parseFloat(this.value.user.xtc.dist_spk);
+            this.value.user.xtc.dist_ears = Number.parseFloat(this.value.user.xtc.dist_ears);
+            this.value.user.xtc.dist_listener = Number.parseFloat(this.value.user.xtc.dist_listener);
+            this._emit_to_node(
+                this.value.node.id,
+                'users',
+                'user.xtc',
+                {
+                    user: this.value.user.id,
+                    xtc: this.value.user.xtc
+                }
+            );
+            this.changed();
         },
         acsInput(value) {
             this.value.user.channel = value.channelindex;
@@ -291,17 +360,22 @@ export default {
             );
         },
         assignHeadtracker() {
-            this._emit_to_node(this.value.node.id, 'users', 'user.headtracker', {
-                userid: this.value.user.id,
-                headtrackerid: this.value.user.headtracker
-            });
+            this._emit_to_node(
+                this.value.node.id,
+                'users',
+                'user.headtracker',
+                {
+                    userid: this.value.user.id,
+                    headtrackerid: this.value.user.headtracker,
+                }
+            );
             this.changed();
         },
         setAzm(input_idx, azm) {
             this._emit_to_node(this.value.node.id, 'users', 'user.input.azm', {
                 userid: this.value.user.id,
                 spid: this.inputs[input_idx].id,
-                value: azm
+                value: azm,
             });
         },
         setElv(input_idx, elv) {
@@ -309,7 +383,7 @@ export default {
             this._emit_to_node(this.value.node.id, 'users', 'user.input.elv', {
                 userid: this.value.user.id,
                 spid: this.inputs[input_idx].id,
-                value: elv
+                value: elv,
             });
         },
         editInput(input_idx) {
@@ -331,18 +405,14 @@ export default {
         },
         detailsNext() {
             let idx = this.spt_input_details.idx || 0;
-            if(idx >= this.inputs.length - 1)
-                this.editInput(0);
-            else 
-                this.editInput(++idx);
+            if (idx >= this.inputs.length - 1) this.editInput(0);
+            else this.editInput(++idx);
         },
         detailsPrevious() {
             let idx = this.spt_input_details.idx || 0;
-            if(idx == 0)
-                this.editInput(this.inputs.length - 1);
-            else
-                this.editInput(--idx);
-        }
+            if (idx == 0) this.editInput(this.inputs.length - 1);
+            else this.editInput(--idx);
+        },
     },
     watch: {
         value: function(newval, oldval) {
@@ -398,13 +468,13 @@ export default {
         },
         usersettingsurl() {
             return `http://${window.location.host}/user/${this.value.user.id}/settings`;
-        }
+        },
     },
     components: {
         AudioChannelsSelector,
         SelectRoomDialog,
         UserSelectInputsDialog,
-        SpatializedInputDetails
+        SpatializedInputDetails,
     },
 };
 </script>

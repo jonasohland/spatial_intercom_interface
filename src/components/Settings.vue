@@ -121,10 +121,10 @@ export default {
         };
     },
     mounted() {
-        this._join_server_room('server', 'nodes');
+        this._join_server_room('server', 'DSP_NODE');
         let self = this;
         this.resetAllListeners();
-        this._io.on('server.nodes', (nodes) => {
+        this.dspnodes_listener = (nodes) => {
             nodes.forEach(node => {
                 console.log(node);
                 node.dspuse = 0.3;
@@ -137,7 +137,9 @@ export default {
                 this._io.on(`${node.id}-dspuse`, this.node_listeners[node.id].dspuse_listener);
                 this._emit_to_node(node.id, 'audiosettings', 'update');
             });
-        });
+        }
+
+        this._io.on('server.nodes.DSP_NODE', this.dspnodes_listener);
 
         this._io.on('audiosettings.update.done', (data) => {
             console.log(data);
@@ -157,10 +159,9 @@ export default {
         });
     },
     beforeDestroy() {
-        this._leave_server_room('server', 'nodes');
         this._io.removeAllListeners('audiosettings.update.done');
         this._io.removeAllListeners('audiosettings.done');
-        this._io.removeAllListeners('server.nodes');
+        this._io.off('server.nodes.DSP_NODE', this.dspnodes_listener);
         this.resetAllListeners();
     },
     methods: {

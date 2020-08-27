@@ -20,6 +20,7 @@ import Settings from './components/Settings';
 import Users from './components/Users';
 import Rooms from './components/Rooms';
 import Inputs from './components/Inputs';
+import XPVolumeSync from './components/XPVolumeSync';
 
 import UserPan from './components/UserPan';
 import UserSelfSettings from './components/UserSelfSettings';
@@ -155,6 +156,7 @@ const router = new VueRouter({
             children: [
                 { path: 'dashboard', components: { admin: Dashboard } },
                 { path: 'headtracking', components: { admin: Headtracking } },
+                { path: 'xpsync', components: { admin: XPVolumeSync } },
                 { path: 'settings', components: { admin: Settings } },
                 { path: 'users', components: { admin: Users } },
                 { path: 'inputs', components: { admin: Inputs } },

@@ -44,9 +44,9 @@
 <script>
 export default {
     mounted() {
-        this._join_server_room('server', 'nodes');
+        this._join_server_room('server', 'DSP_NODE');
         let self = this;
-        this._io.on('server.nodes', nodes => {
+        this.dspnodes_listener = nodes => {
             this.nodes = nodes;
             this.resetAllListeners();
             this.nodes.forEach(node => {
@@ -71,11 +71,13 @@ export default {
                     this.node_listeners[node.id].dspstats_listener
                 );
             });
-        });
+        };
+
+        this._io.on('server.nodes.DSP_NODE', this.dspnodes_listener);
     },
     beforeDestroy() {
-        this._io.removeAllListeners('server.nodes');
-        this._leave_server_room('server', 'nodes');
+        this._io.off('server.nodes.DSP_NODE', this.dspnodes_listener);
+        this._leave_server_room('server', 'DSP_NODE');
         this.resetAllListeners();
     },
     data() {

@@ -75,10 +75,9 @@ export default {
         };
     },
     mounted() {
-        this._join_server_room('server', 'nodes');
-        this._emit_to_server('nodes');
+        this._join_server_room('server', 'DSP_NODE');
 
-        this._io.on('server.nodes', new_nodes => {
+        this.dspnodes_listener = new_nodes => {
             console.log(new_nodes);
             this.nodes.forEach(node => {
                 if(new_nodes.findIndex(nn => nn.id === node.id) == -1) {
@@ -96,7 +95,9 @@ export default {
                     this._join_node_room(new_node.id, 'users', 'users');
                 }
             })
-        });
+        }
+
+        this._io.on('server.nodes.DSP_NODE', this.dspnodes_listener);
 
         this._io.on('node.users.update', (nodeid, users) => {
             let n = this.nodes.find(node => node.id == nodeid);
@@ -105,7 +106,7 @@ export default {
         });
     },
     beforeDestroy() {
-        this._leave_server_room('server', 'nodes');
+        this._io.off('server.nodes.DSP_NODE', this.dspnodes_listener);
         this.nodes.forEach(node => {
             this._leave_node_room(node.id, 'users', 'users');
         })

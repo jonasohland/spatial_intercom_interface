@@ -44,6 +44,14 @@
                         <v-list-item-title>Headtracking</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
+                <v-list-item link v-on:click="nav('/admin/xpsync')">
+                    <v-list-item-action>
+                        <v-icon>sync</v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>XP Sync</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
                 <v-list-item link v-on:click="nav('/admin/settings')">
                     <v-list-item-action>
                         <v-icon>settings</v-icon>
@@ -135,9 +143,8 @@ export default {
 
         this.online = this._io.connected;
 
-        this._join_server_room('server', 'nodes');
-
-        this._io.on('server.nodes', new_nodes => {
+        this._join_server_room('server', 'DSP_NODE');
+        this.dspnodes_listener = new_nodes => {
             this.nodes = new_nodes.map(node => {
                 return {
                     text: truncate(node.name, 24),
@@ -147,7 +154,9 @@ export default {
                     },
                 };
             });
-        });
+        }
+
+        this._io.on('server.nodes.DSP_NODE', this.dspnodes_listener);
 
         this._io.on('connect', () => {
             self.conMsg('Connected to server', MSGTypes.INFO);
