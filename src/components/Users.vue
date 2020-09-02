@@ -1,6 +1,6 @@
 <template>
     <div id="InputsPage">
-        <AddUserDialog v-model="add_user_dialog" :nodes="nodes"/>
+        <AddUserDialog v-model="add_user_dialog" :nodes="nodes" :artist_nodes="artist_nodes"/>
         <div style="margin-right: 256px">
             <UserEditor :value="selectedUser"/>
         </div>
@@ -67,6 +67,7 @@ export default {
             drawer: true,
             users: [],
             nodes: [],
+            artist_nodes: [],
             selected_user_index: null,
             add_user_dialog: {
                 show: false,
@@ -76,6 +77,7 @@ export default {
     },
     mounted() {
         this._join_server_room('server', 'DSP_NODE');
+        this._join_server_room('rrcs', 'artist-nodes');
 
         this.dspnodes_listener = new_nodes => {
             console.log(new_nodes);
@@ -97,8 +99,13 @@ export default {
             })
         }
 
-        this._io.on('server.nodes.DSP_NODE', this.dspnodes_listener);
+        this.artistnodes_listener = nodes => {
+            console.log(nodes);
+            this.artist_nodes = nodes;
+        }
 
+        this._io.on('server.nodes.DSP_NODE', this.dspnodes_listener);
+        this._io.on('rrcs.artist-nodes', this.artistnodes_listener);
         this._io.on('node.users.update', (nodeid, users) => {
             let n = this.nodes.find(node => node.id == nodeid);
             if(n)
@@ -107,6 +114,8 @@ export default {
     },
     beforeDestroy() {
         this._io.off('server.nodes.DSP_NODE', this.dspnodes_listener);
+        this._io.off('rrcs.artist-nodes', this.artistnodes_listener);
+        this._leave_server_room('server', 'DSP_NODE')
         this.nodes.forEach(node => {
             this._leave_node_room(node.id, 'users', 'users');
         })

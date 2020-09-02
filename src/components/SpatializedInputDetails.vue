@@ -6,12 +6,12 @@
             </v-card-title>
             <v-card-subtitle>
                 {{
-                            value.availableInputs.find(inp => inp.id == value.input.inputid)
-                                ? value.availableInputs.find(
-                                      inp => inp.id == value.input.inputid
-                                  ).name
-                                : '[unknown]'
-                        }}
+                    value.availableInputs != null
+                        ? value.availableInputs.find(
+                              inp => inp.id == value.input.inputid
+                          ).name
+                        : '[unknown]'
+                }}
             </v-card-subtitle>
             <v-divider />
             <v-card-text>
@@ -122,29 +122,39 @@ export default {
             this._emit_to_node(this.value.node.id, 'users', 'user.input.azm', {
                 userid: this.value.input.userid,
                 spid: this.value.input.id,
-                value: this.value.input.azm
+                value: this.value.input.azm,
             });
         },
         setElv() {
             this._emit_to_node(this.value.node.id, 'users', 'user.input.elv', {
                 userid: this.value.input.userid,
                 spid: this.value.input.id,
-                value: this.value.input.elv
+                value: this.value.input.elv,
             });
         },
         setHeight() {
-            this._emit_to_node(this.value.node.id, 'users', 'user.input.height', {
-                userid: this.value.input.userid,
-                spid: this.value.input.id,
-                value: this.value.input.heigth
-            });
+            this._emit_to_node(
+                this.value.node.id,
+                'users',
+                'user.input.height',
+                {
+                    userid: this.value.input.userid,
+                    spid: this.value.input.id,
+                    value: this.value.input.heigth,
+                }
+            );
         },
         setWidth() {
-            this._emit_to_node(this.value.node.id, 'users', 'user.input.width', {
-                userid: this.value.input.userid,
-                spid: this.value.input.id,
-                value: this.value.input.width
-            });
+            this._emit_to_node(
+                this.value.node.id,
+                'users',
+                'user.input.width',
+                {
+                    userid: this.value.input.userid,
+                    spid: this.value.input.id,
+                    value: this.value.input.width,
+                }
+            );
         },
         inputModified() {
             this._emit_to_node(

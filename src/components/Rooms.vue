@@ -304,8 +304,8 @@ import { roomcolors } from './roomcolors';
 
 export default {
     mounted() {
-        this._join_server_room('server', 'nodes');
-        this._io.on('server.nodes', nodes => {
+        this._join_server_room('server', 'DSP_NODE');
+        this._io.on('server.nodes.DSP_NODE', nodes => {
             this.nodes = nodes;
         });
         this._io.on('node.rooms', rooms => {

@@ -5,6 +5,7 @@
             v-model="spt_input_details"
             @next="detailsNext()"
             @previous="detailsPrevious()"
+            v-if="spt_input_details.input != null"
         />
         <UserSelectInputsDialog
             :value="select_inputs_dialog"

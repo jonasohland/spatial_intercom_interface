@@ -34,8 +34,12 @@
                         >
                         </v-autocomplete>
                     </v-col>
-                    <v-col sm=1>
-                        <v-checkbox label="Any" :disabled="dest_wildcard" v-model="src_wildcard"/>
+                    <v-col sm="1">
+                        <v-checkbox
+                            label="Any"
+                            :disabled="dest_wildcard"
+                            v-model="src_wildcard"
+                        />
                     </v-col>
                 </v-row>
                 <v-row>
@@ -63,17 +67,31 @@
                         >
                         </v-autocomplete>
                     </v-col>
-                    <v-col sm=1>
-                        <v-checkbox label="Any" :disabled="src_wildcard" v-model="dest_wildcard"/>
+                    <v-col sm="1">
+                        <v-checkbox
+                            label="Any"
+                            :disabled="src_wildcard"
+                            v-model="dest_wildcard"
+                        />
                     </v-col>
                 </v-row>
-                <v-col>
-                    <v-checkbox
-                        label="Use Conference Volume"
-                        v-model="master.conf"
-                        hide-details
-                    ></v-checkbox>
-                </v-col>
+                <v-row>
+                    <v-col>
+                        <v-checkbox
+                            label="Use Conference Volume"
+                            v-model="master.conf"
+                            hide-details
+                        ></v-checkbox>
+                    </v-col>
+                    <v-col>
+                        <v-checkbox
+                            label="Ignore Loopback XP"
+                            v-model="exclude_loopbackxp"
+                            hide-details
+                            :disabled="!(dest_wildcard || src_wildcard)"
+                        ></v-checkbox>
+                    </v-col>
+                </v-row>
             </v-card-text>
             <v-divider />
             <v-card-text>
@@ -171,6 +189,12 @@
                     class="mx-4 my-1"
                     v-model="add_mirror"
                 ></v-checkbox>
+                <v-checkbox
+                    hide-details
+                    label="Add  2ch as Conference Mirror"
+                    class="mx-4 my-1"
+                    v-model="sc_ch_conf_mirror"
+                ></v-checkbox>
                 <v-spacer />
                 <v-btn text @click="value.show = false">CLOSE</v-btn>
                 <v-btn text @click="addSync()" :disabled="!canAdd">ADD</v-btn>
@@ -180,6 +204,11 @@
 </template>
 
 <script>
+import {
+    getLoopbackXPForWildcard,
+    CrosspointSyncType,
+} from 'spatial_intercom_server';
+
 export default {
     props: ['value', 'artist_nodes', 'node'],
     data() {
@@ -210,6 +239,8 @@ export default {
             dest_wildcard: false,
             destinations: [],
             add_mirror: false,
+            exclude_loopbackxp: false,
+            sc_ch_conf_mirror: false,
         };
     },
     methods: {
@@ -224,11 +255,24 @@ export default {
                 this.master.xp.Destination.Port = -1;
             }
 
+            let exclude_first = [];
+            let type = this.src_wildcard
+                ? CrosspointSyncType.WILDCARD_SRC
+                : this.dest_wildcard
+                ? CrosspointSyncType.WILDCARD_DST
+                : CrosspointSyncType.SINGLE;
+
+            if (this.exclude_loopbackxp) {
+                exclude_first.push(getLoopbackXPForWildcard(this.master.xp));
+            }
+
             this._emit_to_node(this.node.id, 'rrcs', 'add-xp-sync', {
                 vol: 0,
                 state: false,
                 master: this.master,
+                type,
                 slaves: this.destinations.map(dest => dest.xpvt),
+                exclude: exclude_first,
             });
 
             if (this.add_mirror) {
@@ -242,6 +286,33 @@ export default {
                     state: false,
                     master: this.master,
                     slaves: this.destinations.map(dest => dest.xpvt),
+                    type,
+                    exclude: exclude_first,
+                });
+            }
+
+            if (this.sc_ch_conf_mirror) {
+
+                this.master.conf = true,
+                this.master.xp.Destination.Port++;
+
+                let exclude_second = [];
+                
+                if (this.exclude_loopbackxp)
+                    exclude_second.push(getLoopbackXPForWildcard(this.master.xp));
+
+                this.destinations.forEach(dest => {
+                    dest.xpvt.conf = true;
+                    dest.xpvt.single = false;
+                });
+                
+                this._emit_to_node(this.node.id, 'rrcs', 'add-xp-sync', {
+                    vol: 0,
+                    state: false,
+                    master: this.master,
+                    slaves: this.destinations.map(dest => dest.xpvt),
+                    type,
+                    exclude: exclude_second
                 });
             }
 
