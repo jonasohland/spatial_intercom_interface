@@ -50,11 +50,13 @@
                     filled
                 />
             </v-col>
+        </v-row>        
+        <v-row>     
             <v-col>
-                <AudioChannelsSelector
-                    :value="selector"
-                    @input="acsInput"
-                />
+                <v-text-field v-model="multich_count" @change="setChcount" label="Channelcount"/>
+            </v-col>
+            <v-col>
+                <AudioChannelsSelector :value="selector" @input="acsInput" />
             </v-col>
         </v-row>
         <v-row>
@@ -71,7 +73,12 @@
                 />
             </v-col>
             <v-col class="d-flex align-center">
-                <v-switch label="RoomEncode by default" hide-details v-model="value.input.default_roomencode" @change="changed()"/>
+                <v-switch
+                    label="RoomEncode by default"
+                    hide-details
+                    v-model="value.input.default_roomencode"
+                    @change="changed()"
+                />
             </v-col>
         </v-row>
         <v-row>
@@ -101,6 +108,7 @@ export default {
     data() {
         return {
             range: [],
+            multich_count: 1
         };
     },
     methods: {
@@ -120,7 +128,6 @@ export default {
             this.value = null;
         },
         changed() {
-            console.log(this.value.input.type);
             this._emit_to_node(
                 this.value.node.id,
                 'inputs',
@@ -132,13 +139,27 @@ export default {
             this.value.input.default_gain = dbtoa(val);
             this.changed();
         },
+        setChcount() {
+            this.multich_count = Number.parseInt(this.multich_count)
+            if (isNaN(this.multich_count))
+                return;
+
+            this.value.input.multich_count = this.multich_count;
+            this.changed();
+        }
+    },
+    watch: {
+        value() {
+            this.multich_count = this.value.input.multich_count;
+        }
     },
     computed: {
         selector() {
             let obj = {
                 node: this.value.node,
                 channelcount:
-                    SourceUtils[PortTypes[this.value.input.type]].channels,
+                    SourceUtils[PortTypes[this.value.input.type]].channels *
+                    this.value.input.multich_count,
                 channelindex: this.value.input.channel,
             };
             return obj;

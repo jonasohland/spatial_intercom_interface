@@ -45,7 +45,7 @@
                                                     v-text="input.name"
                                                 ></v-list-item-title>
                                                 <v-list-item-subtitle>
-                                                    {{ inputTypeName(input.type) }}
+                                                    {{ inputTypeName(input.type) }} - {{ input.channel + 1 }}
                                                 </v-list-item-subtitle>
                                             </v-list-item-content>
                                         </template>
