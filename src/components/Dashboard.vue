@@ -20,6 +20,7 @@
                             {{ node.dspstats.num_connections }}<br />
                             Processing Buses: {{ node.dspstats.num_ports
                             }}<br />
+                            Fail-Sense Thru: {{ node.dspstats.fail_sense.input }} - {{ node.dspstats.fail_sense.output }} 
                         </p>
                     </v-card-text>
                     <v-divider />
@@ -126,6 +127,10 @@ export default {
                 num_connections: 0,
                 num_ports: 0,
                 num_renderops: 0,
+                fail_sense: {
+                    input: 0,
+                    output: 0
+                }
             };
         },
         setDSPStats(nodeid, val) {
