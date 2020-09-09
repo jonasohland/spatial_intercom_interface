@@ -78,19 +78,33 @@
                             label="HGT"
                             hide-details
                             @change="inputModified()"
-                            @input="setHeigth()"
+                            @input="setHeight()"
                         />
+                    </v-col>
+                </v-row>
+                <v-row v-for="(ch, i) in channels" :key="i">
+                    <v-col align-self="center">
+                       Channel {{ ch }}
+                    </v-col>
+                    <v-col align-self="center">
+                        <v-btn @click="changePlayState(i)" :disabled="playing && !playstates[i].state" :color="playstates[i].state?'red':'' " :dark="playstates[i].state"> {{ playstates[i].txt }} TEST SOUND </v-btn>
+                    </v-col>
+                    <v-col>
+                        <v-checkbox label="NOISE" hide-details class="mt-1" v-model="playstates[i].noise"/>
+                    </v-col>
+                    <v-col>
+                        <v-checkbox label="SINE" hide-details class="mt-1" v-model="playstates[i].noise"/>
                     </v-col>
                 </v-row>
             </v-card-text>
             <v-divider />
             <v-card-actions>
-                <v-btn text @click="$emit('previous')">
+                <v-btn text @click="resetPlayStates(); $emit('previous')">
                     <v-icon>
                         skip_previous
                     </v-icon>
                 </v-btn>
-                <v-btn text @click="$emit('next')">
+                <v-btn text @click="resetPlayStates(); $emit('next')">
                     <v-icon>
                         skip_next
                     </v-icon>
@@ -105,10 +119,17 @@
 </template>
 
 <script>
+import { SourceUtils, ensurePortTypeEnum } from 'spatial_intercom_server';
+
 export default {
     props: ['value'],
     data() {
-        return {};
+        let playstates = Array(64).fill(1).map(nothing => { console.log("HI"); return { state: false, noise: false, tone: false, txt: "PLAY", playid: "" } });
+
+        return {
+            playstates,
+            playing: false
+        };
     },
     methods: {
         setgain(id, gain) {
@@ -167,6 +188,53 @@ export default {
                     recompile: true,
                 }
             );
+        },
+        setPlayStates() {
+            this._emit_to_node(
+                this.value.node.id,
+                'users',
+                'user.input.playstates',
+                { 
+                    inputid: this.value.input.id,
+                    userid: this.value.input.userid,
+                    states: this.playstates
+                }
+            )
+        },
+        changePlayState(index) {
+
+            if (this.playstates[index].state) {
+                this.playstates[index].txt = "PLAY";
+                this.playstates[index].state = false;
+                this.playing = false;
+            } else {
+                this.playstates[index].txt = "STOP";
+                this.playstates[index].state = true;
+                this.playing = true;
+            }
+
+            this.setPlayStates();
+        },
+        resetPlayStates() {
+            this._emit_to_node(
+                this.value.node.id,
+                'users',
+                'user.input.reset-playstates'
+            )
+            this.playing = false;
+            this.playstates = Array(64).fill(1).map(nothing => { console.log("HI"); return { state: false, noise: true, tone: false, txt: "PLAY", playid: "" } });
+        }
+    },
+    computed: {
+        channels() {
+            let chs = [...Array(SourceUtils[
+                ensurePortTypeEnum(
+                    this.value.availableInputs.find(
+                        inp => inp.id === this.value.input.inputid
+                    ).type
+                )
+            ].channels).keys()].map(ch => ch + 1);
+            return chs;
         },
     },
 };

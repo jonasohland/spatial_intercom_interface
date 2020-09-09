@@ -20,8 +20,15 @@
                             {{ node.dspstats.num_connections }}<br />
                             Processing Buses: {{ node.dspstats.num_ports
                             }}<br />
-                            Fail-Sense Thru: {{ node.dspstats.fail_sense.input }} - {{ node.dspstats.fail_sense.output }} 
+                            Fail-Sense Thru:
+                            {{ node.dspstats.fail_sense.input }} -
+                            {{ node.dspstats.fail_sense.output }}
                         </p>
+                        <v-row>
+                            <v-col>
+                                <v-select label="Test Audiofile" hide-details :items="node.allfiles" v-model="node.selectedfile" @change="selectFile(node.id, node.selectedfile)"/>
+                            </v-col>
+                        </v-row>
                     </v-card-text>
                     <v-divider />
                     <v-card-actions>
@@ -53,6 +60,8 @@ export default {
             this.nodes.forEach(node => {
                 node.dspuse = 0.3;
                 node.dspstats = this.defaultDSPStats();
+                node.allfiles = [];
+                node.selectedfile = "";
                 this.node_listeners[node.id] = {
                     dspuse_listener: dspuse => {
                         self.setDSPUseVal(node.id, dspuse);
@@ -60,9 +69,13 @@ export default {
                     dspstats_listener: dspstats => {
                         self.setDSPStats(node.id, dspstats);
                     },
+                    testfiles_listener: testfiles => {
+                        self.setTestfiles(node.id, testfiles.default, testfiles.all);
+                    },
                 };
                 this._join_node_room(node.id, 'node-audio-devices', 'dspuse');
                 this._join_node_room(node.id, 'dsp-process', 'dspstats');
+                this._join_node_room(node.id, 'users', 'testfiles');
                 this._io.on(
                     `${node.id}-dspuse`,
                     this.node_listeners[node.id].dspuse_listener
@@ -70,6 +83,10 @@ export default {
                 this._io.on(
                     `${node.id}.dspstats`,
                     this.node_listeners[node.id].dspstats_listener
+                );
+                this._io.on(
+                    `${node.id}.testfiles`,
+                    this.node_listeners[node.id].testfiles_listener
                 );
             });
         };
@@ -89,10 +106,13 @@ export default {
     },
     methods: {
         reconnectRRCS() {
-            this._emit_to_server_module('rrcs', 'reconnect-rrcs');
         },
         reloadNode(nodeid) {
             this._emit_to_node(nodeid, 'graph-controller', 'rebuildgraph');
+        },
+        selectFile(id, file) {
+            console.log(id, file);
+            this._emit_to_node(id, 'users', 'default-test-file', file);
         },
         resetAllListeners() {
             this.nodes.forEach(node => {
@@ -103,12 +123,17 @@ export default {
                         'dspuse'
                     );
                     this._leave_node_room(node.id, 'dsp-process', 'dspstats');
+                    this._leave_node_room(node.id, 'users', 'testfiles');
                     this._io.off(
                         `${node.id}-dspuse`,
                         this.node_listeners[node.id].dspuse_listener
                     );
                     this._io.off(
                         `${node.id}.dspstats`,
+                        this.node_listeners[node.id].dspstats_listener
+                    );
+                    this._io.off(
+                        `${node.id}.testfiles`,
                         this.node_listeners[node.id].dspstats_listener
                     );
                 }
@@ -129,9 +154,17 @@ export default {
                 num_renderops: 0,
                 fail_sense: {
                     input: 0,
-                    output: 0
-                }
+                    output: 0,
+                },
             };
+        },
+        setTestfiles(nodeid, _default, all) {
+            let n = this.nodes.find(node => node.id == nodeid);
+            if (n) {
+                n.allfiles = all;
+                n.selectedfile = _default;
+                this.$forceUpdate();
+            }
         },
         setDSPStats(nodeid, val) {
             let n = this.nodes.find(node => node.id == nodeid);
