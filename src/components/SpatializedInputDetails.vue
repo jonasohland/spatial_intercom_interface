@@ -222,18 +222,18 @@ export default {
                 'user.input.reset-playstates'
             )
             this.playing = false;
-            this.playstates = Array(64).fill(1).map(nothing => { console.log("HI"); return { state: false, noise: true, tone: false, txt: "PLAY", playid: "" } });
+            this.playstates = (new Array(64)).fill(1).map(nothing => { console.log("HI"); return { state: false, noise: true, tone: false, txt: "PLAY", playid: "" } });
         }
     },
     computed: {
         channels() {
-            let chs = [...Array(SourceUtils[
+            let chs = [...(new Array(SourceUtils[
                 ensurePortTypeEnum(
                     this.value.availableInputs.find(
                         inp => inp.id === this.value.input.inputid
                     ).type
                 )
-            ].channels).keys()].map(ch => ch + 1);
+            ].channels)).keys()].map(ch => ch + 1);
             return chs;
         },
     },
